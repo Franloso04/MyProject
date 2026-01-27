@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Attendee List &amp; QR Preview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen">
+<div class="relative mx-auto max-w-[430px] min-h-screen bg-white dark:bg-background-dark shadow-2xl flex flex-col overflow-hidden">
+<!-- Top Navigation -->
+<div class="sticky top-0 z-20 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+<div class="flex items-center px-4 py-3 justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#111418] dark:text-white">event_seat</span>
+<h2 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-tight">Attendees</h2>
+</div>
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[#111418] dark:text-white">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Search and Action Bar -->
+<div class="px-4 py-3 space-y-3 bg-white dark:bg-background-dark">
+<div class="flex gap-2">
+<label class="flex flex-col flex-1 h-12">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full bg-[#f0f2f4] dark:bg-gray-800">
+<div class="text-[#637588] flex items-center justify-center pl-4">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-transparent focus:outline-0 focus:ring-0 text-[#111418] dark:text-white placeholder:text-[#637588] px-3 text-base font-normal" placeholder="Search by name or company" value=""/>
+</div>
+</label>
+<button class="flex aspect-square h-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+<!-- Import Action -->
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">1,248 attendees</p>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-semibold shadow-sm shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+                    Import CSV
+                </button>
+</div>
+</div>
+<!-- Status Filter Chips -->
+<div class="flex gap-3 px-4 py-2 overflow-x-auto no-scrollbar">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-primary px-4">
+<p class="text-white text-sm font-semibold">All</p>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-[#f0f2f4] dark:bg-gray-800 px-4">
+<p class="text-[#111418] dark:text-gray-300 text-sm font-medium">Confirmed</p>
+<span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1.5 rounded-full bg-[#f0f2f4] dark:bg-gray-800 px-4">
+<p class="text-[#111418] dark:text-gray-300 text-sm font-medium">Checked-in</p>
+<span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+</div>
+<!-- Scrollable List -->
+<div class="flex-1 overflow-y-auto px-4 pb-20 space-y-1">
+<!-- List Item 1 -->
+<div class="flex items-center gap-4 bg-white dark:bg-background-dark min-h-[76px] py-3 border-b border-gray-50 dark:border-gray-800 group cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 border border-gray-100 dark:border-gray-700" data-alt="Portrait of Alex Rivera" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAOkQV8aZXcJjzh9-1XmeVItBCe4kfY4NOj6rxCSkKRVvTEKKp2tyR7Aw5845xAN1b8oeIfMttiAhdlZRDHpQ_yjL1RvN3bAEKWVKmGBCzUD-J-k17rTz6AVmcZwHJ_26I1sD-3xR_b1oo3qL47JFD4VzJkAFJ0Q0euKoakLeo2UImT30COmuSngQhBk6_d8WnWRe2R1vmh99-3X9EVHDEiBJx1vTAXZDijutvANU0DuM1L_KUFYvNXqn-FReWKDx2Z2hrp8aFZXoQ");'></div>
+<div class="flex flex-1 flex-col justify-center">
+<p class="text-[#111418] dark:text-white text-base font-semibold leading-tight">Alex Rivera</p>
+<p class="text-[#637588] dark:text-gray-400 text-sm font-normal">TechCorp · Product Design</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30">
+<span class="text-[10px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider">Checked-in</span>
+</div>
+<span class="material-symbols-outlined text-gray-300">chevron_right</span>
+</div>
+</div>
+<!-- List Item 2 (Active/Selected) -->
+<div class="flex items-center gap-4 bg-primary/5 dark:bg-primary/10 -mx-4 px-4 min-h-[76px] py-3 border-y border-primary/10 cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 border-2 border-primary" data-alt="Portrait of Sarah Chen" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCexySQ_J3OX4e0EQrjrl8jwxPTxxY-hQ2X8q1X4G6_Y-x9_mBJbYLQpBA0FqDWO10RDzZCM_nQwSQDB1kcUzwXEwtgvNa27uOqPQwvxx8EvZkMbnHjUu9S2ZNRJuPN8hX5DHhAoJyAXElrNEHNEA5NuVhW6gqDStVaoZJhHxXN43-2tD9tQb7JkvLpbY1HkxFJ0i7aM-qXfATGZa2Es20Tn44rc5OpdYBGYAQRacIe797tI9E76ULn6Y-Cj35IWaUInWsCJYGVQak");'></div>
+<div class="flex flex-1 flex-col justify-center">
+<p class="text-[#111418] dark:text-white text-base font-bold leading-tight">Sarah Chen</p>
+<p class="text-[#637588] dark:text-gray-400 text-sm font-normal">Innovate LLC · CEO</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30">
+<span class="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">Confirmed</span>
+</div>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- List Item 3 -->
+<div class="flex items-center gap-4 bg-white dark:bg-background-dark min-h-[76px] py-3 border-b border-gray-50 dark:border-gray-800 cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 border border-gray-100 dark:border-gray-700" data-alt="Portrait of Marcus Wright" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9p2SVGcfDPPlxxFBnIzuGDyflUaxcjRcvlcdqOhii0JgSf_Q_ybk5em8qPdgAYFrXuBdzyYvz_CndBXcbYWX41vci9Kk7nz84e4vV4rGctQ_5XDxfLTqsebzPKEPrIOqUBCzZ4Ii4uqUykLduuZ6PGx1qStzNSlfE2KDUESTAYvxEGyQVF__vpXkAMOfvEWvZH7PMq9qgqVyhyDl9tMdiBvO2yzYiLbfV19ftuGTk4ugjUYaooPPfs9fBRXo_HrvNNeJsq33HKWE");'></div>
+<div class="flex flex-1 flex-col justify-center">
+<p class="text-[#111418] dark:text-white text-base font-semibold leading-tight">Marcus Wright</p>
+<p class="text-[#637588] dark:text-gray-400 text-sm font-normal">Stellar Systems · Lead Dev</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30">
+<span class="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Pending</span>
+</div>
+<span class="material-symbols-outlined text-gray-300">chevron_right</span>
+</div>
+</div>
+<!-- List Item 4 -->
+<div class="flex items-center gap-4 bg-white dark:bg-background-dark min-h-[76px] py-3 border-b border-gray-50 dark:border-gray-800 cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 border border-gray-100 dark:border-gray-700" data-alt="Portrait of Elena Gomez" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD5whixIDPOwp_jJNx8zA5K8O7G0rhyNau96Sow-RSyM0IzFV-KN3S5Mr3RteixTSCmrCzwGSrGDoFpNCItBX94eeqP-r-p7I0QwsjriA7zBrxs5e-_FIADT8ba4CfexCxQ7uCCBrWsu5iCF-HQhfbBlz5YwQHgBAlddO99OajZXt-upEs0RwXt_sZXG-comeEPvuMAECfaFbXXEHog7MVL9cwoG8UPMT_R-UFO-1-SVlqKVr9xcrPjRYQ86MlkafbTT6IRntJkoNo");'></div>
+<div class="flex flex-1 flex-col justify-center">
+<p class="text-[#111418] dark:text-white text-base font-semibold leading-tight">Elena Gomez</p>
+<p class="text-[#637588] dark:text-gray-400 text-sm font-normal">Global Creative · Designer</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30">
+<span class="text-[10px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider">Checked-in</span>
+</div>
+<span class="material-symbols-outlined text-gray-300">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- QR Preview Side Drawer Overlay (Mobile Bottom Sheet Style) -->
+<div class="absolute inset-0 z-30 pointer-events-none">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] pointer-events-auto"></div>
+<!-- Drawer Content -->
+<div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-background-dark rounded-t-3xl shadow-2xl pointer-events-auto max-h-[85%] overflow-hidden flex flex-col">
+<!-- Handle -->
+<div class="w-full flex justify-center py-3">
+<div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></div>
+</div>
+<div class="px-6 pb-10 flex flex-col items-center">
+<!-- Profile Header in Drawer -->
+<div class="w-full flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 border-2 border-primary" data-alt="Sarah Chen avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBQyUyFxef68BktB1MKCsjgc6C1ETmWMMpyakXAa7cQgdI3z4st6Z91gYt4M4PefFW0apt74Su0F8JFO1trSKanF_WuWWXEbKpME_AbnzBYw7fyPXd3Ld6dGSEaKsxni6YMhOJu9_TUazmvaKT274Ri0pfND3vvQ6ESCnZ-lRqwTc-WWy8p6qhDNypNR9QdiIcJ20cbxmajgWFESakAnFAnk7Q4AWc5L3m6ywEyhsYzcAW5tW0r3_SNc-onaSPaSVz9-8rWqMIl-Hc");'></div>
+<div>
+<h3 class="text-xl font-bold text-[#111418] dark:text-white">Sarah Chen</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">Innovate LLC · CEO</p>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-gray-600 dark:text-gray-300">close</span>
+</button>
+</div>
+<!-- QR Code Card -->
+<div class="w-full max-w-[280px] aspect-square bg-white dark:bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-6 mb-6 border border-gray-100">
+<div class="w-full h-full flex items-center justify-center bg-white">
+<!-- Simulated QR Code with CSS Grid/Pattern -->
+<div class="w-full h-full grid grid-cols-4 grid-rows-4 gap-1 p-2 opacity-80">
+<div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div>
+<div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div>
+<div class="bg-white"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div>
+<div class="bg-black"></div><div class="bg-black"></div><div class="bg-white"></div><div class="bg-black"></div>
+</div>
+<!-- Central logo/dot for QR styling -->
+<div class="absolute w-12 h-12 bg-white flex items-center justify-center rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-primary text-2xl">qr_code_2</span>
+</div>
+</div>
+</div>
+<!-- Badge Info -->
+<div class="text-center mb-8">
+<p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Registration ID</p>
+<p class="text-lg font-mono font-bold text-primary">EV-2024-SC88</p>
+</div>
+<!-- Action Buttons -->
+<div class="w-full grid grid-cols-2 gap-4">
+<button class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-primary text-white shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-2xl">print</span>
+<span class="text-sm font-semibold">Print Badge</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-gray-100 dark:bg-gray-800 text-[#111418] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+<span class="material-symbols-outlined text-2xl">mail</span>
+<span class="text-sm font-semibold">Resend Ticket</span>
+</button>
+</div>
+<!-- Additional Details -->
+<div class="w-full mt-8 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30">
+<div class="flex items-center justify-between mb-3">
+<span class="text-sm text-gray-500">Ticket Tier</span>
+<span class="text-sm font-semibold dark:text-white">VIP Full Access</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm text-gray-500">Dietary Req.</span>
+<span class="text-sm font-semibold dark:text-white">Vegetarian</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Bottom Nav Bar (Standard iOS UI) -->
+<div class="fixed bottom-0 left-0 right-0 mx-auto max-w-[430px] bg-white/90 dark:bg-background-dark/90 backdrop-blur-lg border-t border-gray-100 dark:border-gray-800 px-8 py-3 flex justify-between items-center z-40">
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-medium">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined fill-1">group</span>
+<span class="text-[10px] font-bold">Attendees</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-medium">Stats</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-medium">Config</span>
+</div>
+</div>
+</div>
+</body></html>
