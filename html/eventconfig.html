@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Event Management Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white min-h-screen pb-24">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-white dark:bg-background-dark border-b border-[#dce0e5] dark:border-gray-800 px-4 py-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<div>
+<h2 class="text-lg font-bold leading-tight tracking-tight">TechConf 2024</h2>
+<div class="flex items-center gap-1">
+<span class="size-2 rounded-full bg-green-500"></span>
+<span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Live Now</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-9 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Professional user profile avatar thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNmg1-UNFG4cSNbMjrf0swrXdoSsmadg3867PKyOqf_hgn3_77Xlor6cCoS9dTpJ9UjR3idYfMh04GfDuKZAZHD0R6TSx397nwyLD0ePiE-qay3nOw_2ZSoZxVZA7tuTsxnMkS_71rnpuA5RK99_SmjT6RMJWtUFeQyU6cKOWRrRM1K4rTfEjn9YUMi9GWzdk6lxvG6MOi2NpLcOOpaMkOshmoqo_hBX1AihuDGDtkj_4QTVVLEcTJ5EjbjJh3du9qWCh4-CRi4aE"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-md mx-auto">
+<!-- Dashboard Stats -->
+<div class="p-4 grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2 rounded-xl p-5 bg-white dark:bg-gray-900 border border-[#dce0e5] dark:border-gray-800 shadow-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-xl">groups</span>
+<p class="text-sm font-medium">Attendees</p>
+</div>
+<p class="text-2xl font-bold leading-tight mt-1">1,240</p>
+<div class="flex items-center gap-1">
+<span class="text-[#078838] text-xs font-bold leading-normal">+12%</span>
+<span class="text-gray-400 text-xs">of 1.5k cap</span>
+</div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-5 bg-white dark:bg-gray-900 border border-[#dce0e5] dark:border-gray-800 shadow-sm">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-xl">payments</span>
+<p class="text-sm font-medium">Revenue</p>
+</div>
+<p class="text-2xl font-bold leading-tight mt-1">$45.2k</p>
+<div class="flex items-center gap-1">
+<span class="text-[#078838] text-xs font-bold leading-normal">+5.4%</span>
+<span class="text-gray-400 text-xs">this week</span>
+</div>
+</div>
+</div>
+<!-- Check-in Progress -->
+<div class="px-4 py-2">
+<div class="bg-white dark:bg-gray-900 rounded-xl p-5 border border-[#dce0e5] dark:border-gray-800 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-base font-bold">Check-in Progress</h3>
+<span class="text-primary text-sm font-semibold">Live Updates</span>
+</div>
+<div class="flex items-center gap-6">
+<!-- Circular Progress Replacement with SVG for UI richness -->
+<div class="relative size-24 shrink-0">
+<svg class="size-full" viewbox="0 0 36 36">
+<circle class="stroke-gray-200 dark:stroke-gray-800" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+<circle class="stroke-primary" cx="18" cy="18" fill="none" r="16" stroke-dasharray="85, 100" stroke-linecap="round" stroke-width="3"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xl font-bold">85%</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<div class="flex flex-col">
+<span class="text-2xl font-bold">1,054</span>
+<span class="text-sm text-gray-500 font-medium">Attendees Present</span>
+</div>
+<div class="h-1.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 85%;"></div>
+</div>
+<p class="text-[#637588] text-xs font-normal">186 remaining tickets to scan</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Actions Section -->
+<div class="mt-4">
+<div class="flex items-center justify-between px-4 mb-2">
+<h3 class="text-base font-bold leading-tight tracking-tight">Quick Actions</h3>
+<button class="text-primary text-sm font-semibold">View All</button>
+</div>
+<div class="flex gap-3 overflow-x-auto px-4 pb-4 no-scrollbar">
+<button class="flex min-w-[120px] flex-col items-center gap-3 rounded-xl bg-primary p-4 text-white shadow-md active:scale-95 transition-transform">
+<div class="bg-white/20 p-2 rounded-lg">
+<span class="material-symbols-outlined">add_circle</span>
+</div>
+<span class="text-sm font-bold">New Session</span>
+</button>
+<button class="flex min-w-[120px] flex-col items-center gap-3 rounded-xl bg-white dark:bg-gray-900 border border-[#dce0e5] dark:border-gray-800 p-4 shadow-sm active:scale-95 transition-transform">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">campaign</span>
+</div>
+<span class="text-sm font-bold">Broadcast</span>
+</button>
+<button class="flex min-w-[120px] flex-col items-center gap-3 rounded-xl bg-white dark:bg-gray-900 border border-[#dce0e5] dark:border-gray-800 p-4 shadow-sm active:scale-95 transition-transform">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">badge</span>
+</div>
+<span class="text-sm font-bold">Print ID</span>
+</button>
+<button class="flex min-w-[120px] flex-col items-center gap-3 rounded-xl bg-white dark:bg-gray-900 border border-[#dce0e5] dark:border-gray-800 p-4 shadow-sm active:scale-95 transition-transform">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">qr_code_scanner</span>
+</div>
+<span class="text-sm font-bold">Scanner</span>
+</button>
+</div>
+</div>
+<!-- Content Section -->
+<div class="px-4 py-2">
+<h3 class="text-base font-bold leading-tight tracking-tight mb-3">Today's Agenda</h3>
+<div class="space-y-3">
+<div class="flex gap-4 bg-white dark:bg-gray-900 p-3 rounded-xl border border-[#dce0e5] dark:border-gray-800">
+<div class="flex flex-col items-center justify-center min-w-[60px] bg-background-light dark:bg-background-dark rounded-lg py-2">
+<span class="text-xs font-bold text-primary uppercase">10:00</span>
+<span class="text-xs font-medium text-gray-500">AM</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-sm">Keynote: Future of AI</p>
+<p class="text-xs text-gray-500">Main Stage • 450 Booked</p>
+</div>
+<button class="self-center">
+<span class="material-symbols-outlined text-gray-400">chevron_right</span>
+</button>
+</div>
+<div class="flex gap-4 bg-white dark:bg-gray-900 p-3 rounded-xl border border-[#dce0e5] dark:border-gray-800">
+<div class="flex flex-col items-center justify-center min-w-[60px] bg-background-light dark:bg-background-dark rounded-lg py-2">
+<span class="text-xs font-bold text-primary uppercase">11:30</span>
+<span class="text-xs font-medium text-gray-500">AM</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-sm">DevOps Best Practices</p>
+<p class="text-xs text-gray-500">Hall B • 120 Booked</p>
+</div>
+<button class="self-center">
+<span class="material-symbols-outlined text-gray-400">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-background-dark border-t border-[#dce0e5] dark:border-gray-800 px-6 py-2 pb-6 flex justify-between items-center z-50">
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-[10px] font-medium">Agenda</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-medium">People</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-medium">Config</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+<span class="text-[10px] font-medium">More</span>
+</div>
+</nav>
+<!-- Hide scrollbar utility -->
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>
