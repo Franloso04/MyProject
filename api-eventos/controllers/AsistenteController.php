@@ -1,7 +1,8 @@
 <?php
 // controllers/AsistenteController.php
-include_once 'config/database.php';
-include_once 'models/Asistente.php';
+$root = dirname(dirname(__FILE__));
+include_once $root . '/config/database.php';
+include_once $root . '/models/Asistente.php';
 
 class AsistenteController {
     private $db;
@@ -23,14 +24,13 @@ class AsistenteController {
             $asistentes_arr["data"] = array();
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                // Decodificamos el JSON de campos personalizados para que el Frontend lo lea bien
                 $row['campos_personalizados'] = json_decode($row['campos_personalizados']);
                 array_push($asistentes_arr["data"], $row);
             }
             http_response_code(200);
             echo json_encode($asistentes_arr);
         } else {
-            http_response_code(200); // 200 OK pero vacío es mejor que 404 para listas
+            http_response_code(200);
             echo json_encode(array("data" => []));
         }
     }
@@ -69,7 +69,6 @@ class AsistenteController {
     public function store() {
         $data = json_decode(file_get_contents("php://input"));
 
-        // Validar datos obligatorios
         if(
             !empty($data->id_evento) &&
             !empty($data->id_categoria) &&
@@ -77,14 +76,12 @@ class AsistenteController {
             !empty($data->apellidos) &&
             !empty($data->email)
         ) {
-            // 1. Verificar duplicados (Email único por evento)
             if ($this->asistente->existeEmail($data->email, $data->id_evento)) {
-                http_response_code(409); // Conflict
+                http_response_code(409);
                 echo json_encode(array("message" => "Este email ya está registrado en este evento."));
                 return;
             }
 
-            // 2. Generar datos automáticos
             $this->asistente->id_evento = $data->id_evento;
             $this->asistente->id_categoria = $data->id_categoria;
             $this->asistente->nombre = $data->nombre;
@@ -94,18 +91,13 @@ class AsistenteController {
             $this->asistente->cargo = $data->cargo ?? null;
             $this->asistente->estado = $data->estado ?? 'CONFIRMADO';
             
-            // Manejar campos JSON
             $this->asistente->campos_personalizados = isset($data->campos_personalizados) 
                 ? json_encode($data->campos_personalizados) 
                 : null;
 
-            // GENERACIÓN DE ID Y TOKEN (Lógica Core)
-            // Generar UUID V4 seguro para el QR
             $this->asistente->token_qr = $this->generateUuid();
-            // Generar ID legible: EV-{EventID}-{Random} (Ej: EV-1-A8F2)
             $this->asistente->id_registro = 'EV-' . $data->id_evento . '-' . strtoupper(substr(uniqid(), -4));
 
-            // 3. Guardar en BD
             if($this->asistente->crear()) {
                 http_response_code(201);
                 echo json_encode(array(
@@ -128,14 +120,12 @@ class AsistenteController {
         $data = json_decode(file_get_contents("php://input"));
         $this->asistente->id = $id;
 
-        // Validamos que el asistente exista antes de actualizar
         if (!$this->asistente->leerUno()) {
             http_response_code(404);
             echo json_encode(array("message" => "Asistente no encontrado."));
             return;
         }
 
-        // Asignamos valores nuevos o mantenemos los viejos si no vienen en el JSON
         $this->asistente->id_categoria = $data->id_categoria ?? $this->asistente->id_categoria;
         $this->asistente->nombre = $data->nombre ?? $this->asistente->nombre;
         $this->asistente->apellidos = $data->apellidos ?? $this->asistente->apellidos;
@@ -170,14 +160,10 @@ class AsistenteController {
         }
     }
 
-    /**
-     * Genera un UUID v4 seguro nativo en PHP
-     * Formato: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
-     */
     private function generateUuid() {
         $data = random_bytes(16);
-        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
-        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 }
