@@ -1,0 +1,185 @@
+{
+  "info": {
+    "name": "Event Management API",
+    "description": "Colección completa para probar la API de eventos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Eventos",
+      "item": [
+        {
+          "name": "GET - Listar todos los eventos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/MyProject/api-eventos/eventos",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["MyProject", "api-eventos", "eventos"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET - Obtener evento por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/MyProject/api-eventos/eventos/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["MyProject", "api-eventos", "eventos", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST - Crear nuevo evento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_organizacion\": 1,\n  \"nombre\": \"Tech Summit 2025\",\n  \"descripcion\": \"Cumbre anual de tecnología\",\n  \"fecha_inicio\": \"2025-09-15 09:00:00\",\n  \"fecha_fin\": \"2025-09-17 18:00:00\",\n  \"estado\": \"BORRADOR\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost/MyProject/api-eventos/eventos",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["MyProject", "api-eventos", "eventos"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Asistentes",
+      "item": [
+        {
+          "name": "GET - Listar todos los asistentes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/MyProject/api-eventos/asistentes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["MyProject", "api-eventos", "asistentes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET - Obtener asistente por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/MyProject/api-eventos/asistentes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["MyProject", "api-eventos", "asistentes", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST - Crear nuevo asistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_evento\": 1,\n  \"id_categoria\": 2,\n  \"nombre\": \"Pedro\",\n  \"apellidos\": \"Rodríguez\",\n  \"email\": \"pedro.rodriguez@email.com\",\n  \"empresa\": \"TechStart\",\n  \"cargo\": \"Developer\",\n  \"estado\": \"CONFIRMADO\",\n  \"campos_personalizados\": {\n    \"departamento\": \"Ingeniería\",\n    \"LinkedIn\": \"linkedin.com/in/pedro\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost/MyProject/api-eventos/asistentes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["MyProject", "api-eventos", "asistentes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST - Crear asistente (email duplicado - debe fallar)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_evento\": 1,\n  \"id_categoria\": 1,\n  \"nombre\": \"Juan\",\n  \"apellidos\": \"Pérez\",\n  \"email\": \"juan.perez@email.com\",\n  \"empresa\": \"TechCorp\",\n  \"cargo\": \"Manager\",\n  \"estado\": \"CONFIRMADO\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost/MyProject/api-eventos/asistentes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["MyProject", "api-eventos", "asistentes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT - Actualizar asistente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Actualizado\",\n  \"cargo\": \"Senior Engineer\",\n  \"estado\": \"CONFIRMADO\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost/MyProject/api-eventos/asistentes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["MyProject", "api-eventos", "asistentes", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE - Eliminar asistente",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/MyProject/api-eventos/asistentes/3",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["MyProject", "api-eventos", "asistentes", "3"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
