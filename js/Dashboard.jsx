@@ -53,7 +53,6 @@ const Dashboard = () => {
           <div className="relative w-24 h-24 shrink-0">
             <svg className="w-full h-full" viewBox="0 0 36 36">
               <circle className="stroke-gray-200" cx="18" cy="18" r="16" fill="none" strokeWidth="3" />
-              {/* Lógica dinámica del círculo SVG */}
               <circle 
                 className="stroke-blue-500 transition-all duration-1000 ease-out" 
                 cx="18" cy="18" r="16" fill="none" 
