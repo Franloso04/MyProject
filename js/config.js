@@ -1,5 +1,5 @@
 // js/config.js
-export const API_BASE_URL = "https://api.tu-empresa.com/v1"; 
+export const API_BASE_URL = "http://localhost/MyProject/"; 
 
 export const ENDPOINTS = {
   STATS: (eventId) => `${API_BASE_URL}/dashboard/stats?event_id=${eventId}`,

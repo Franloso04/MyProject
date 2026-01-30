@@ -1,9 +1,9 @@
 <?php
 class Database {
-    private $host = "localhost";  // ← CAMBIAR a localhost
+    private $host = "154.53.132.197";
     private $db_name = "eventos_app";
-    private $username = "root";   // ← Usuario por defecto en LAMP
-    private $password = "";       // ← Sin contraseña por defecto
+    private $username = "adminMarobe";   
+    private $password = "*pk7R2a57";       
     public $conn;
 
     public function getConnection() {
@@ -15,6 +15,7 @@ class Database {
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch(PDOException $exception) {
             echo json_encode(["error" => "Error de conexión: " . $exception->getMessage()]);
+            error_log($exception->getMessage());
             exit();
         }
         return $this->conn;
