@@ -1,11 +1,9 @@
 <?php
-// models/Asistente.php
 
 class Asistente {
     private $conn;
     private $table_name = "asistentes";
 
-    // Propiedades (Columnas de la BD)
     public $id;
     public $id_evento;
     public $id_categoria;
@@ -26,6 +24,28 @@ class Asistente {
 
     public function __construct($db) {
         $this->conn = $db;
+    }
+    public function buscarPorToken($token, $id_evento) {
+    // Buscamos asistente por token Y evento
+    $query = "SELECT * FROM " . $this->table_name . " 
+              WHERE token_qr = ? AND id_evento = ? LIMIT 0,1";
+
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(1, $token);
+    $stmt->bindParam(2, $id_evento);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if($row) {
+        // Mapeamos los datos al objeto actual
+        $this->id = $row['id'];
+        $this->nombre = $row['nombre'];
+        $this->apellidos = $row['apellidos'];
+        $this->estado = $row['estado'];
+        return true;
+    }
+    return false;
     }
 
     // --- LEER TODOS (GET) ---

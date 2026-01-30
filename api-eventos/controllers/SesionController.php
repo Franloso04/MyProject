@@ -36,9 +36,28 @@ class SesionController {
     }
     
     public function store() {
-        // Lógica para crear sesión (opcional por ahora)
-        http_response_code(501);
-        echo json_encode(["message" => "Crear sesión no implementado aun"]);
+    $data = json_decode(file_get_contents("php://input"));
+
+    if(!empty($data->id_evento) && !empty($data->titulo) && !empty($data->hora_inicio)) {
+        $this->sesion->id_evento = $data->id_evento;
+        $this->sesion->titulo = $data->titulo;
+        $this->sesion->descripcion = $data->descripcion ?? '';
+        $this->sesion->hora_inicio = $data->hora_inicio;
+        $this->sesion->hora_fin = $data->hora_fin ?? null;
+        $this->sesion->id_ubicacion = $data->id_ubicacion ?? null;
+        $this->sesion->estado = $data->estado ?? 'DRAFT';
+
+        if($this->sesion->crear()) {
+            http_response_code(201);
+            echo json_encode(["message" => "Sesión creada exitosamente."]);
+        } else {
+            http_response_code(503);
+            echo json_encode(["message" => "Error al crear la sesión."]);
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(["message" => "Datos incompletos."]);
     }
+}
 }
 ?>

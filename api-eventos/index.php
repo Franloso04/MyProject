@@ -144,7 +144,9 @@ switch ($resource) {
     case 'registros_acceso':
         include_once 'controllers/RegistroAccesoController.php';
         $controller = new RegistroAccesoController();
-        if ($request_method == 'GET') {
+        if ($request_method == 'POST' && $id == 'scan') {
+            $controller->scan();
+        } elseif ($request_method == 'GET') {
             $controller->index();
         } elseif ($request_method == 'POST') {
             $controller->store();

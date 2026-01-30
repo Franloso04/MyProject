@@ -46,5 +46,61 @@ class RegistroAccesoController {
             echo json_encode(["message" => "Datos incompletos."]);
         }
     }
+    public function scan() {
+    $data = json_decode(file_get_contents("php://input"));
+
+    if(empty($data->token_qr) || empty($data->id_evento)) {
+        http_response_code(400);
+        echo json_encode(["message" => "Falta el token QR o ID de evento."]);
+        return;
+    }
+
+    // 1. Instanciar Asistente para buscarlo
+    include_once dirname(dirname(__FILE__)) . '/models/Asistente.php';
+    $asistenteModel = new Asistente($this->db);
+
+    if(!$asistenteModel->buscarPorToken($data->token_qr, $data->id_evento)) {
+        http_response_code(404);
+        echo json_encode(["message" => "QR inválido o no pertenece a este evento."]);
+        return;
+    }
+
+    // 2. Regla de Negocio: ¿Ya hizo check-in?
+    if($asistenteModel->estado === 'CHECKED_IN') {
+        http_response_code(409); // Conflict
+        echo json_encode([
+            "message" => "El asistente ya ha ingresado previamente.",
+            "asistente" => [
+                "nombre" => $asistenteModel->nombre,
+                "apellidos" => $asistenteModel->apellidos
+            ]
+        ]);
+        return;
+    }
+
+    // 3. Registrar el acceso en la tabla registros_acceso
+    $this->registro->id_asistente = $asistenteModel->id;
+    $this->registro->id_punto_acceso = 1; // Default
+    $this->registro->id_escaneado_por_usuario = 1; // Default admin
+    $this->registro->es_valido = 1;
+    $this->registro->crear();
+
+    // 4. Actualizar estado del asistente a CHECKED_IN
+    // Nota: Deberías agregar un método rapido en Asistente.php para actualizar solo estado, 
+    // pero por ahora podemos usar una query directa o actualizar el objeto.
+    $queryUpdate = "UPDATE asistentes SET estado = 'CHECKED_IN' WHERE id = :id";
+    $stmtUpdate = $this->db->prepare($queryUpdate);
+    $stmtUpdate->execute([':id' => $asistenteModel->id]);
+
+    http_response_code(200);
+    echo json_encode([
+        "message" => "Acceso permitido.",
+        "asistente" => [
+            "id" => $asistenteModel->id,
+            "nombre" => $asistenteModel->nombre,
+            "apellidos" => $asistenteModel->apellidos
+        ]
+    ]);
+    }
 }
 ?>

@@ -7,7 +7,34 @@ const Agenda = () => {
   const { currentEvent } = useContext(EventContext);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  
+  const handleCreateSession = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newSession = {
+        id_evento: currentEvent.id,
+        titulo: formData.get('titulo'),
+        hora_inicio: formData.get('hora_inicio'),
+        estado: 'PUBLISHED' // Default
+    };
 
+    try {
+        const response = await fetch(`${API_BASE_URL}/sessions`, { // Asegúrate que la ruta coincida con index.php case 'sessions'
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newSession)
+        });
+        if (response.ok) {
+            // Recargar sesiones o añadir al estado local
+            alert("Sesión creada"); 
+            setShowModal(false);
+        }
+    } catch (error) {
+        console.error("Error creating session", error);
+    }
+};
+  
   useEffect(() => {
     if (!currentEvent?.id) return;
 
