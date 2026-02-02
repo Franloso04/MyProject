@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Proyecto Stitch</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        
+        
+        function Navbar() {
+            return (
+                <nav className="bg-white p-4 shadow-md">
+                    <h1 className="text-xl font-bold">Mi App Stitch</h1>
+                </nav>
+            );
+        }
+
+        function App() {
+            return (
+                <div className="min-h-screen bg-gray-100">
+                    <Navbar />
+                    <main className="p-8">
+                        {/* Pega aquí el contenido que te dio Stitch */}
+                        <h2 className="text-2xl">Bienvenido de nuevo</h2>
+                        <p className="mt-4">Este es tu diseño montado con React sin Node.</p>
+                    </main>
+                </div>
+            );
+        }
+
+        // 4. Renderizado (Sustituye a main.jsx / index.js)
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+        
+    </script>
+</body>
+</html>
