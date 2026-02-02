@@ -2,45 +2,245 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Proyecto Stitch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management System</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50">
     <div id="root"></div>
 
     <script type="text/babel">
-        
-        
-        function Navbar() {
-            return (
-                <nav className="bg-white p-4 shadow-md">
-                    <h1 className="text-xl font-bold">Mi App Stitch</h1>
-                </nav>
-            );
-        }
+        const { useState, useEffect, useContext, createContext } = React;
 
-        function App() {
+        // --- 1. CONFIGURACIÓN Y CONTEXTO ---
+        const API_BASE_URL = "http://localhost/MyProject/api-eventos"; //
+
+        const EventContext = createContext();
+
+        const EventProvider = ({ children }) => {
+            const [currentEvent, setCurrentEvent] = useState({ id: 1, name: 'TechConf 2024', status: 'LIVE' }); //
             return (
-                <div className="min-h-screen bg-gray-100">
-                    <Navbar />
-                    <main className="p-8">
-                        {/* Pega aquí el contenido que te dio Stitch */}
-                        <h2 className="text-2xl">Bienvenido de nuevo</h2>
-                        <p className="mt-4">Este es tu diseño montado con React sin Node.</p>
-                    </main>
+                <EventContext.Provider value={{ currentEvent, setCurrentEvent }}>
+                    {children}
+                </EventContext.Provider>
+            );
+        };
+
+        // --- 2. DASHBOARD (Carga de Stats reales) ---
+        const Dashboard = () => {
+            const { currentEvent } = useContext(EventContext);
+            const [stats, setStats] = useState(null);
+
+            useEffect(() => {
+                fetch(`${API_BASE_URL}/dashboard/stats?event_id=${currentEvent.id}`) //
+                    .then(res => res.json())
+                    .then(data => setStats(data))
+                    .catch(err => console.error("Error stats:", err));
+            }, [currentEvent.id]);
+
+            if (!stats) return <div className="p-10 text-center">Cargando métricas...</div>;
+
+            return (
+                <div className="pb-24">
+                    <div className="p-4 grid grid-cols-2 gap-4">
+                        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                            <div className="flex items-center gap-2 text-blue-500">
+                                <span className="material-symbols-outlined">groups</span>
+                                <p className="text-sm font-medium">Asistentes</p>
+                            </div>
+                            <p className="text-2xl font-bold mt-1">{stats.total_attendees}</p>
+                        </div>
+                        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                            <div className="flex items-center gap-2 text-blue-500">
+                                <span className="material-symbols-outlined">payments</span>
+                                <p className="text-sm font-medium">Ingresos</p>
+                            </div>
+                            <p className="text-2xl font-bold mt-1">${stats.total_revenue}</p>
+                        </div>
+                    </div>
                 </div>
             );
-        }
+        };
 
-        // 4. Renderizado (Sustituye a main.jsx / index.js)
+        // --- 3. ASISTENTES (Listado e Importación CSV) ---
+        const Attendees = () => {
+            const { currentEvent } = useContext(EventContext);
+            const [attendees, setAttendees] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            const loadAttendees = () => {
+                fetch(`${API_BASE_URL}/asistentes?id_evento=${currentEvent.id}`) //
+                    .then(res => res.json())
+                    .then(json => {
+                        setAttendees(json.data || []);
+                        setLoading(false);
+                    });
+            };
+
+            useEffect(() => { loadAttendees(); }, [currentEvent.id]);
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const rows = event.target.result.split('\n').slice(1);
+                    for (let row of rows) {
+                        const [nombre, apellidos, email, empresa] = row.split(',');
+                        if (!email) continue;
+                        await fetch(`${API_BASE_URL}/asistentes`, { //
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                id_evento: currentEvent.id,
+                                id_categoria: 1,
+                                nombre, apellidos, email, empresa,
+                                estado: 'CONFIRMADO'
+                            })
+                        });
+                    }
+                    alert("Importación finalizada");
+                    loadAttendees();
+                };
+                reader.readAsText(file);
+            };
+
+            return (
+                <div className="p-4 pb-24">
+                    <div className="flex justify-between items-center mb-4">
+                        <p className="text-sm text-gray-500">{attendees.length} asistentes</p>
+                        <input type="file" id="csv-file" className="hidden" onChange={handleFileUpload} accept=".csv" />
+                        <label htmlFor="csv-file" className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm cursor-pointer flex items-center gap-1">
+                            <span className="material-symbols-outlined text-sm">upload_file</span> Importar CSV
+                        </label>
+                    </div>
+                    {attendees.map(a => (
+                        <div key={a.id} className="bg-white p-3 mb-2 rounded-xl border border-gray-100 flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center font-bold text-blue-600">{a.nombre[0]}</div>
+                            <div className="flex-1">
+                                <p className="text-sm font-bold">{a.nombre} {a.apellidos}</p>
+                                <p className="text-xs text-gray-500">{a.empresa || 'Particular'}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // --- 4. AGENDA (Listado y Formulario de Nueva Sesión) ---
+        const Agenda = () => {
+            const { currentEvent } = useContext(EventContext);
+            const [sessions, setSessions] = useState([]);
+            const [showModal, setShowModal] = useState(false);
+
+            const loadSessions = () => {
+                fetch(`${API_BASE_URL}/sesiones?event_id=${currentEvent.id}`) //
+                    .then(res => res.json())
+                    .then(data => setSessions(Array.isArray(data) ? data : []));
+            };
+
+            useEffect(() => { loadSessions(); }, [currentEvent.id]);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                const fd = new FormData(e.target);
+                const payload = {
+                    id_evento: currentEvent.id,
+                    titulo: fd.get('titulo'),
+                    hora_inicio: fd.get('inicio'),
+                    id_ubicacion: 1,
+                    estado: 'PUBLISHED'
+                };
+
+                const res = await fetch(`${API_BASE_URL}/sesiones`, { //
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    setShowModal(false);
+                    loadSessions();
+                }
+            };
+
+            return (
+                <div className="p-4 pb-24">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold">Agenda ({sessions.length})</h3>
+                        <button onClick={() => setShowModal(true)} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-1">
+                            <span className="material-symbols-outlined text-sm">add</span> Nueva
+                        </button>
+                    </div>
+
+                    {sessions.map(s => (
+                        <div key={s.session_id} className="bg-white p-4 rounded-xl border border-gray-200 mb-3">
+                            <h4 className="font-bold text-sm">{s.title}</h4>
+                            <p className="text-xs text-gray-500 mt-1">{s.start_time} - {s.room_name}</p>
+                        </div>
+                    ))}
+
+                    {showModal && (
+                        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+                            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl w-full max-w-sm space-y-4">
+                                <h3 className="font-bold">Añadir Sesión</h3>
+                                <input name="titulo" placeholder="Título" required className="w-full border-gray-200 rounded-lg" />
+                                <input name="inicio" type="datetime-local" required className="w-full border-gray-200 rounded-lg" />
+                                <div className="flex gap-2">
+                                    <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2 bg-gray-100 rounded-lg">Cancelar</button>
+                                    <button type="submit" className="flex-1 py-2 bg-blue-600 text-white rounded-lg">Guardar</button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- 5. APP PRINCIPAL ---
+        const App = () => {
+            const [tab, setTab] = useState('home');
+            const { currentEvent } = useContext(EventContext);
+
+            return (
+                <div className="mx-auto max-w-[430px] min-h-screen bg-white shadow-2xl flex flex-col relative">
+                    <header className="p-4 border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
+                        <h2 className="font-bold">{currentEvent.name}</h2>
+                    </header>
+                    
+                    <main className="flex-1 overflow-y-auto">
+                        {tab === 'home' && <Dashboard />}
+                        {tab === 'agenda' && <Agenda />}
+                        {tab === 'people' && <Attendees />}
+                    </main>
+
+                    <nav className="fixed bottom-0 w-full max-w-[430px] bg-white border-t p-3 flex justify-around">
+                        <button onClick={() => setTab('home')} className={tab === 'home' ? 'text-blue-600' : 'text-gray-400'}>
+                            <span className="material-symbols-outlined block">dashboard</span><span className="text-[10px] font-bold">Home</span>
+                        </button>
+                        <button onClick={() => setTab('agenda')} className={tab === 'agenda' ? 'text-blue-600' : 'text-gray-400'}>
+                            <span className="material-symbols-outlined block">calendar_today</span><span className="text-[10px] font-bold">Agenda</span>
+                        </button>
+                        <button onClick={() => setTab('people')} className={tab === 'people' ? 'text-blue-600' : 'text-gray-400'}>
+                            <span className="material-symbols-outlined block">group</span><span className="text-[10px] font-bold">People</span>
+                        </button>
+                    </nav>
+                </div>
+            );
+        };
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-        
+        root.render(<EventProvider><App /></EventProvider>);
     </script>
 </body>
 </html>
