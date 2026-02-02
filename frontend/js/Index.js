@@ -1,7 +1,7 @@
 // js/index.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
+import App from '../src/App';
 import { EventProvider } from './EventContext';
 import './index.css'; // Asegúrate de tener Tailwind importado aquí o en el HTML
 

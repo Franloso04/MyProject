@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventManager - Unificado</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.375rem",
+                        "lg": "0.5rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .radial-progress {
+            position: relative; width: 200px; height: 200px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .radial-progress::before {
+            content: ""; position: absolute; width: 170px; height: 170px; border-radius: 50%; background: white;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-slate-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- CONFIGURACIÓN API (Ajusta la IP/Ruta si es necesario) ---
+        const API_BASE = "http://localhost/MyProject/api-eventos"; 
+
+        // --- COMPONENTE: SELECTOR DE EVENTOS (Tu diseño exacto) ---
+        const EventSelector = ({ onSelectEvent, user }) => {
+            const [events, setEvents] = React.useState([]);
+
+            // Cargar eventos reales
+            React.useEffect(() => {
+                fetch(`${API_BASE}/eventos`)
+                    .then(res => res.json())
+                    .then(res => setEvents(res.data || []))
+                    .catch(err => console.error("Error cargando eventos", err));
+            }, []);
+
+            const handleCreate = async () => {
+                const nombre = prompt("Nombre del nuevo evento:");
+                if (!nombre) return;
+                
+                // POST para crear evento real
+                const res = await fetch(`${API_BASE}/eventos`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        id_organizacion: 1, 
+                        nombre: nombre,
+                        fecha_inicio: new Date().toISOString().slice(0, 19).replace('T', ' '),
+                        fecha_fin: new Date().toISOString().slice(0, 19).replace('T', ' '),
+                        estado: 'BORRADOR'
+                    })
+                });
+                
+                if (res.ok) {
+                    alert("Evento Creado");
+                    // Recargar lista para verificar creación
+                    const refresh = await fetch(`${API_BASE}/eventos`);
+                    const data = await refresh.json();
+                    setEvents(data.data || []);
+                }
+            };
+
+            return (
+                <div className="flex flex-col min-h-screen">
+                    {/* Header Original Selector */}
+                    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex h-16 items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-shrink-0 size-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
+                                        <span className="material-symbols-outlined text-2xl">corporate_fare</span>
+                                    </div>
+                                    <div className="hidden sm:block">
+                                        <h2 className="text-slate-900 text-sm font-bold">Global Tech Conf</h2>
+                                        <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Workspace Principal</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="px-3 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-600">
+                                        Rol: {user.rol}
+                                    </div>
+                                    <div className="size-8 rounded-full bg-slate-200 flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-slate-500">person</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                            <div>
+                                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Mis Eventos</h1>
+                                <p className="text-slate-500 mt-1 text-sm sm:text-base">Gestiona y supervisa todas tus producciones.</p>
+                            </div>
+                            {/* Botón dinámico por rol */}
+                            {user.rol === 'admin_org' && (
+                                <button onClick={handleCreate} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-primary/90 hover:-translate-y-0.5 transition-all">
+                                    <span className="material-symbols-outlined">add</span>
+                                    <span>Crear Evento</span>
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Mapeo dinámico de eventos */}
+                            {events.map(ev => (
+                                <div key={ev.id} className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all flex flex-col overflow-hidden">
+                                    <div className="relative h-48 bg-slate-200">
+                                        <div className="absolute inset-0 flex items-center justify-center text-slate-400">
+                                            <span className="material-symbols-outlined text-6xl opacity-20">image</span>
+                                        </div>
+                                        <div className="absolute top-4 left-4">
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-wider shadow-lg ${ev.estado === 'PUBLICADO' ? 'bg-green-500' : 'bg-slate-500'}`}>
+                                                {ev.estado}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="p-5 flex-1 flex flex-col">
+                                        <h3 className="text-lg font-bold text-slate-900 mb-2">{ev.nombre}</h3>
+                                        <div className="flex items-center gap-4 mb-6 text-slate-500">
+                                            <span className="flex items-center gap-1.5 text-xs font-medium">
+                                                <span className="material-symbols-outlined text-base">calendar_today</span>
+                                                {new Date(ev.fecha_inicio).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                        <div className="mt-auto pt-5 border-t border-slate-100 flex justify-end">
+                                            <button onClick={() => onSelectEvent(ev)} className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline">
+                                                Gestionar <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE: DASHBOARD (Tu diseño exacto) ---
+        const Dashboard = ({ event, onViewChange }) => {
+            const [stats, setStats] = React.useState({ total_attendees: 0, checked_in_count: 0, total_revenue: 0, checkin_percentage: 0 });
+
+            React.useEffect(() => {
+                fetch(`${API_BASE}/dashboard/stats?event_id=${event.id}`)
+                    .then(res => res.json())
+                    .then(data => setStats(data));
+            }, [event]);
+
+            // Cálculo del gradiente del gráfico radial
+            const radialStyle = {
+                background: `conic-gradient(#197fe6 ${stats.checkin_percentage}%, #d0dbe7 0)`
+            };
+
+            return (
+                <div className="min-h-screen bg-background-light">
+                    {/* Header Específico del Dashboard */}
+                    <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex items-center justify-between h-16">
+                                <div className="flex items-center gap-8">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-1.5 bg-primary rounded-lg text-white">
+                                            <span className="material-symbols-outlined block">event_available</span>
+                                        </div>
+                                        <h2 className="text-lg font-bold tracking-tight">EventManager</h2>
+                                    </div>
+                                    {/* Navegación Interna */}
+                                    <nav className="hidden md:flex items-center gap-6">
+                                        <button onClick={() => onViewChange('selector')} className="text-slate-500 hover:text-primary text-sm font-medium">← Mis Eventos</button>
+                                        <button onClick={() => onViewChange('dashboard')} className="text-primary font-semibold text-sm border-b-2 border-primary pb-5 mt-5">Dashboard</button>
+                                        <button onClick={() => onViewChange('attendees')} className="text-slate-500 hover:text-primary text-sm font-medium">Asistentes</button>
+                                    </nav>
+                                </div>
+                                <div className="font-bold text-slate-700">{event.nombre}</div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            {/* KPI Cards */}
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="p-2 bg-blue-50 text-primary rounded-lg"><span className="material-symbols-outlined">groups</span></div>
+                                </div>
+                                <p className="text-slate-500 text-sm font-medium">Participantes Totais</p>
+                                <h3 className="text-2xl font-bold mt-1">{stats.total_attendees}</h3>
+                            </div>
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><span className="material-symbols-outlined">payments</span></div>
+                                </div>
+                                <p className="text-slate-500 text-sm font-medium">Receita Total</p>
+                                <h3 className="text-2xl font-bold mt-1">${stats.total_revenue}</h3>
+                            </div>
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
+                                <h2 className="text-xl font-bold mb-4">Progresso de Check-in</h2>
+                                <div className="radial-progress" style={radialStyle}>
+                                    <div className="z-10 text-center">
+                                        <span className="text-4xl font-black text-slate-900">{stats.checkin_percentage}%</span>
+                                        <p className="text-slate-500 text-xs font-medium uppercase mt-1">Finalizado</p>
+                                    </div>
+                                </div>
+                                <p className="mt-4 text-primary font-bold">{stats.checked_in_count} / {stats.total_attendees}</p>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE: ASISTENTES (Tu diseño exacto) ---
+        const Attendees = ({ event, onViewChange }) => {
+            const [list, setList] = React.useState([]);
+
+            React.useEffect(() => {
+                fetch(`${API_BASE}/asistentes`) // Nota: En tu API real deberías filtrar por ?id_evento=${event.id}
+                    .then(res => res.json())
+                    .then(res => setList(res.data || []));
+            }, [event]);
+
+            return (
+                <div className="min-h-screen bg-background-light">
+                    {/* Header Específico Asistentes */}
+                    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/80 backdrop-blur">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex h-16 items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-white">
+                                        <span className="material-symbols-outlined">event_seat</span>
+                                    </div>
+                                    <h2 className="text-lg font-bold tracking-tight hidden sm:block">Gestión de Asistentes</h2>
+                                </div>
+                                <nav className="hidden md:flex items-center gap-6">
+                                    <button onClick={() => onViewChange('dashboard')} className="text-sm font-medium hover:text-primary">Dashboard</button>
+                                    <button className="text-sm font-medium text-primary">Asistentes</button>
+                                </nav>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-slate-50 border-b border-slate-200">
+                                        <th className="px-6 py-4 text-xs font-bold uppercase text-slate-500">Asistente</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase text-slate-500">Categoría</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase text-slate-500">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {list.map(att => (
+                                        <tr key={att.id} className="hover:bg-slate-50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                                                        {att.nombre[0]}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-semibold text-slate-900">{att.nombre} {att.apellidos}</p>
+                                                        <p className="text-xs text-slate-500">{att.email}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4"><span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-medium">{att.nombre_categoria || 'General'}</span></td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${att.estado === 'CHECKED_IN' ? 'text-green-600' : 'text-amber-600'}`}>
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${att.estado === 'CHECKED_IN' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                                                    {att.estado}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE PRINCIPAL (APP) ---
+        const App = () => {
+            // Usuario simulado (Esto vendría de tu Login)
+            const [user] = React.useState({ nombre: "Admin", rol: "admin_org" });
+            
+            // Estado de Navegación
+            const [view, setView] = React.useState('selector'); // selector, dashboard, attendees
+            const [selectedEvent, setSelectedEvent] = React.useState(null);
+
+            const handleEventSelect = (event) => {
+                setSelectedEvent(event);
+                setView('dashboard');
+            };
+
+            const handleViewChange = (newView) => {
+                // Si intenta ir a dashboard/attendees sin evento seleccionado, lo mandamos al selector
+                if (newView !== 'selector' && !selectedEvent) {
+                    setView('selector');
+                } else {
+                    setView(newView);
+                }
+            };
+
+            // Router simple
+            return (
+                <React.Fragment>
+                    {view === 'selector' && (
+                        <EventSelector user={user} onSelectEvent={handleEventSelect} />
+                    )}
+                    
+                    {view === 'dashboard' && selectedEvent && (
+                        // Bloqueo de seguridad: Solo admin_org ve el dashboard
+                        user.rol === 'admin_org' 
+                        ? <Dashboard event={selectedEvent} onViewChange={handleViewChange} />
+                        : <div className="p-10 text-center">Acceso Denegado: Se requieren permisos de Administrador</div>
+                    )}
+
+                    {view === 'attendees' && selectedEvent && (
+                        <Attendees event={selectedEvent} onViewChange={handleViewChange} />
+                    )}
+                </React.Fragment>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

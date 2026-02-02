@@ -1,10 +1,10 @@
 // js/App.jsx
 import React, { useContext, useState } from 'react';
-import { EventContext } from './EventContext';
-import Dashboard from './Dashboard';
-import Agenda from './Agenda';
-import Attendees from './Attendees';
-import Settings from './Settings'; // Nuevo componente para Config
+import { EventContext } from '../js/EventContext';
+import Dashboard from '../js/Dashboard';
+import Agenda from '../js/Agenda';
+import Attendees from '../js/Attendees';
+import Settings from '../js/Settings'; // Nuevo componente para Config
 
 const App = () => {
   const { currentEvent } = useContext(EventContext);
