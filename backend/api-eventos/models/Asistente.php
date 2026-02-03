@@ -65,6 +65,35 @@ class Asistente {
         return $stmt;
     }
 
+    // --- LEER POR EVENTO CON FILTRO OPCIONAL (GET) ---
+    public function leerPorEvento($id_evento, $query = null) {
+        $sql = "SELECT 
+                    a.*, 
+                    e.nombre as nombre_evento, 
+                    c.nombre as nombre_categoria
+                FROM " . $this->table_name . " a
+                LEFT JOIN eventos e ON a.id_evento = e.id
+                LEFT JOIN categorias_asistentes c ON a.id_categoria = c.id
+                WHERE a.id_evento = :id_evento";
+
+        if (!empty($query)) {
+            $sql .= " AND (a.nombre LIKE :q OR a.apellidos LIKE :q OR a.email LIKE :q OR a.empresa LIKE :q)";
+        }
+
+        $sql .= " ORDER BY a.fecha_creacion DESC";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(":id_evento", $id_evento);
+
+        if (!empty($query)) {
+            $like = "%" . $query . "%";
+            $stmt->bindParam(":q", $like);
+        }
+
+        $stmt->execute();
+        return $stmt;
+    }
+
     // --- LEER UNO POR ID (GET) ---
     public function leerUno() {
         $query = "SELECT 

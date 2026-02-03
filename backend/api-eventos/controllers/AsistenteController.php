@@ -16,7 +16,12 @@ class AsistenteController {
 
     // GET /api-eventos/asistentes
     public function index() {
-        $stmt = $this->asistente->leer();
+        $id_evento = isset($_GET['id_evento']) ? $_GET['id_evento'] : null;
+        $q = isset($_GET['q']) ? $_GET['q'] : null;
+
+        $stmt = $id_evento
+            ? $this->asistente->leerPorEvento($id_evento, $q)
+            : $this->asistente->leer();
         $num = $stmt->rowCount();
 
         if($num > 0) {
