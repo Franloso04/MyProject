@@ -1,0 +1,78 @@
+* {
+  box-sizing: border-box;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  font-family: system-ui, sans-serif;
+  background-color: #f4f6f8;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: #111827;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  font-size: 1.4rem;
+  margin-bottom: 30px;
+}
+
+.evento-activo {
+  background: #1f2937;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.evento-activo span {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu a {
+  color: #d1d5db;
+  text-decoration: none;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.menu a.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* Main */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  font-weight: 500;
+}
+
+.page-content {
+  padding: 20px;
+  overflow-y: auto;
+}
