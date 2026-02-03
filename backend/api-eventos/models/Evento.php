@@ -13,6 +13,7 @@ class Evento {
     public $fecha_inicio;
     public $fecha_fin;
     public $estado;
+    
 
     public function __construct($db) {
         $this->conn = $db;

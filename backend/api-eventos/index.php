@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // 2. PARSEO DE URL INTELIGENTE - CORREGIDO PARA MAMP
-$base_path = '/MyProject/api-eventos';  // ← CAMBIAR ESTO SI CAMBIA TU CARPETA
+$base_path = '/MyProject/backend/api-eventos';  // ← CAMBIAR ESTO SI CAMBIA TU CARPETA
 $request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $route_clean = str_replace($base_path, '', $request_uri);
 $parts = explode('/', trim($route_clean, '/'));
