@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Eventos</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+
+    <div id="navbar"></div>
+
+    <main class="container">
+        <h2>Mis Eventos</h2>
+
+        <div class="toolbar">
+            <input type="text" id="searchInput" placeholder="Buscar evento...">
+            <button id="refreshBtn" class="btn btn-primary">Actualizar</button>
+        </div>
+
+        <div id="eventsGrid" class="events-grid"></div>
+
+        <p id="loadingMsg" class="loading-msg">Cargando eventos...</p>
+    </main>
+
+    <script type="module" src="./assets/js/dashboard.js"></script>
+</body>
+</html>

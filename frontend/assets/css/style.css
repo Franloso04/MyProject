@@ -1,0 +1,178 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f6f9;
+    color: #222;
+}
+
+.center-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* LOGIN */
+.login-box {
+    width: 380px;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0px 6px 18px rgba(0,0,0,0.15);
+}
+
+.login-box h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.login-box label {
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* NAVBAR */
+.navbar {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-left h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.org-name {
+    display: block;
+    font-size: 13px;
+    color: #666;
+}
+
+/* CONTAINER */
+.container {
+    padding: 25px;
+}
+
+/* TOOLBAR */
+.toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.toolbar input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* EVENTS */
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.event-card {
+    background: white;
+    padding: 18px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 3px 10px rgba(0,0,0,0.08);
+}
+
+.event-card h3 {
+    margin-top: 0;
+}
+
+.event-desc {
+    color: #444;
+    font-size: 14px;
+}
+
+.event-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* BUTTONS */
+.btn {
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background: #1e73ff;
+    color: white;
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    color: #222;
+}
+
+.btn-danger {
+    background: #e53935;
+    color: white;
+}
+
+.w100 {
+    width: 100%;
+}
+
+.error-msg {
+    color: red;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.loading-msg {
+    text-align: center;
+    margin-top: 20px;
+    color: #555;
+}
+.success-msg {
+    color: green;
+    margin-top: 10px;
+    text-align: center;
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0px 6px 18px rgba(0,0,0,0.2);
+}
+.modal-content h3 {
+    margin-top: 0;
+    text-align: center;
+}
