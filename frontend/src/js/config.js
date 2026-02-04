@@ -1,5 +1,5 @@
 // js/config.js
-export const API_BASE_URL = "http://localhost/MyProject/"; 
+export const API_BASE_URL = "http://localhost/MyProject/backend/"; 
 
 
 export const ENDPOINTS = {

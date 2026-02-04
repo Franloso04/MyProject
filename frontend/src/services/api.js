@@ -1,20 +1,37 @@
-const API_URL = "http://localhost/api-eventos";
+import { API_BASE_URL } from "../js/config";
 
-export const getEventos = async () =>
-  fetch(`${API_URL}/eventos`).then(r => r.json());
+export async function apiRequest(endpoint, method = "GET", body = null) {
+  const token = localStorage.getItem("token");
 
-export const getDashboard = async (id) =>
-  fetch(`${API_URL}/dashboard/${id}`).then(r => r.json());
+  const headers = {
+    "Content-Type": "application/json",
+  };
 
-export const getAsistentes = async (id) =>
-  fetch(`${API_URL}/asistentes/evento/${id}`).then(r => r.json());
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
 
-export const getSesiones = async (id) =>
-  fetch(`${API_URL}/sesiones/evento/${id}`).then(r => r.json());
+  const options = {
+    method,
+    headers,
+  };
 
-export const registrarAcceso = async (data) =>
-  fetch(`${API_URL}/registro-acceso`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+
+  if (!res.ok) {
+    throw new Error(data?.message || "Error en la API");
+  }
+
+  return data;
+}
