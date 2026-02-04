@@ -3,30 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
+  <title>Agenda</title>
   <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
 
   <header class="topbar">
     <div>
-      <h2 id="eventName"></h2>
-      <p id="eventDesc" class="muted"></p>
+      <h2>Agenda del evento</h2>
+      <p class="muted" id="eventName"></p>
     </div>
 
     <button id="logoutBtn" class="btn btn-danger">Cerrar sesión</button>
   </header>
 
   <main class="container">
-    <div class="grid">
-      <div class="card">
-        <h3>Agenda</h3>
-        <p class="muted">Visualiza sesiones del evento.</p>
-        <button id="agendaBtn" class="btn btn-primary w100">Ver agenda</button>
-      </div>
-    </div>
+    <div id="agendaList" class="grid"></div>
   </main>
 
-  <script type="module" src="./assets/js/dashboard.js"></script>
+  <script type="module" src="./assets/js/agenda.js"></script>
 </body>
 </html>

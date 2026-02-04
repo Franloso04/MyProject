@@ -1,30 +1,34 @@
-import { API_BASE_URL } from "./config.js";
+import { API_BASE } from "./config.js";
 import { getToken } from "./auth.js";
 
-export async function apiRequest(endpoint, method = "GET", data = null) {
-    const token = getToken();
+export async function apiRequest(endpoint, method = "GET", body = null) {
+  const headers = {
+    "Content-Type": "application/json",
+  };
 
-    const options = {
-        method,
-        headers: {
-            "Content-Type": "application/json",
-        }
-    };
+  const token = getToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
 
-    if (token) {
-        options.headers["Authorization"] = `Bearer ${token}`;
-    }
+  const options = { method, headers };
 
-    if (data) {
-        options.body = JSON.stringify(data);
-    }
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
 
-    const response = await fetch(API_BASE_URL + endpoint, options);
+  const response = await fetch(`${API_BASE}${endpoint}`, options);
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API Error (${response.status}): ${errorText}`);
-    }
+  let data = null;
+  try {
+    data = await response.json();
+  } catch (err) {
+    throw new Error("Respuesta inválida del servidor");
+  }
 
-    return await response.json();
+  if (!response.ok) {
+    throw new Error(data?.message || "Error en la API");
+  }
+
+  return data;
 }

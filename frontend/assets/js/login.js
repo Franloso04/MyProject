@@ -1,38 +1,38 @@
 import { apiRequest } from "./api.js";
-import { saveSession, isLoggedIn } from "./auth.js";
-
-if (isLoggedIn()) {
-    window.location.href = "dashboard.html";
-}
+import { saveSession } from "./auth.js";
 
 const form = document.getElementById("loginForm");
 const errorMsg = document.getElementById("errorMsg");
 
 form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  errorMsg.textContent = "";
 
-    errorMsg.textContent = "";
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+  if (!email || !password) {
+    errorMsg.textContent = "Debes completar todos los campos.";
+    return;
+  }
 
-    try {
-        // Ajusta este endpoint según tu API real
-        const response = await apiRequest("auth/login.php", "POST", {
-            email,
-            password
-        });
+  try {
+    const data = await apiRequest("/usuarios/login", "POST", {
+      email,
+      password,
+    });
 
-        if (!response.token || !response.organization) {
-            throw new Error("Respuesta inválida del servidor");
-        }
+    // Esperamos estructura tipo:
+    // { token, user: {...}, organization: {...} }
 
-        saveSession(response.token, response.organization);
-
-        window.location.href = "dashboard.html";
-
-    } catch (err) {
-        errorMsg.textContent = "Credenciales incorrectas o error en servidor.";
-        console.error(err);
+    if (!data.token || !data.user) {
+      throw new Error("Respuesta inválida del servidor (faltan datos).");
     }
+
+    saveSession(data);
+
+    window.location.href = "./events.html";
+  } catch (err) {
+    errorMsg.textContent = err.message;
+  }
 });

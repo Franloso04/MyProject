@@ -1,36 +1,47 @@
-const TOKEN_KEY = "auth_token";
-const ORG_KEY = "organization";
-
-export function saveSession(token, organization) {
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(ORG_KEY, JSON.stringify(organization));
+export function saveSession(sessionData) {
+  localStorage.setItem("session", JSON.stringify(sessionData));
 }
 
-export function clearSession() {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(ORG_KEY);
-}
+export function getSession() {
+  const raw = localStorage.getItem("session");
+  if (!raw) return null;
 
-export function getToken() {
-    return localStorage.getItem(TOKEN_KEY);
-}
-
-export function getOrganization() {
-    const org = localStorage.getItem(ORG_KEY);
-    return org ? JSON.parse(org) : null;
-}
-
-export function isLoggedIn() {
-    return !!getToken();
-}
-
-export function requireAuth() {
-    if (!isLoggedIn()) {
-        window.location.href = "index.html";
-    }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
 export function logout() {
-    clearSession();
-    window.location.href = "index.html";
+  localStorage.removeItem("session");
+  localStorage.removeItem("selected_event");
+  window.location.href = "./index.html";
+}
+
+export function getToken() {
+  const session = getSession();
+  return session?.token || null;
+}
+
+export function requireAuth() {
+  const session = getSession();
+  if (!session) {
+    window.location.href = "./index.html";
+  }
+}
+
+export function setSelectedEvent(event) {
+  localStorage.setItem("selected_event", JSON.stringify(event));
+}
+
+export function getSelectedEvent() {
+  const raw = localStorage.getItem("selected_event");
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
