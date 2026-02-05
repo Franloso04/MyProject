@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar Espacio de Trabajo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .stitch-card {
+            transition: all 0.3s ease;
+        }
+        .select-input {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            appearance: none;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen text-slate-800">
+
+    <div class="stitch-card bg-white w-full max-w-md p-8 rounded-2xl shadow-xl m-4 border border-slate-100">
+        
+        <div class="text-center mb-8">
+            <div class="h-12 w-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900">Configuración de acceso</h1>
+            <p class="text-sm text-slate-500 mt-2">Hola, <span id="userName" class="font-semibold text-blue-600">...</span></p>
+        </div>
+
+        <div class="space-y-6">
+            
+            <div class="space-y-2">
+                <label class="text-xs font-bold uppercase text-slate-400 tracking-wider ml-1">1. Organización</label>
+                <div class="relative">
+                    <select id="orgSelect" class="select-input w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-4 outline-none transition-all">
+                        <option value="">Cargando organizaciones...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="eventContainer" class="space-y-2 opacity-50 pointer-events-none transition-all duration-300">
+                <label class="text-xs font-bold uppercase text-slate-400 tracking-wider ml-1">2. Evento</label>
+                <div class="relative">
+                    <select id="eventSelect" class="select-input w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-4 outline-none transition-all" disabled>
+                        <option value="">Selecciona primero la organización</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="btnContinue" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 font-bold rounded-xl text-sm px-5 py-4 text-center transition-all shadow-lg transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed mt-4" disabled>
+                Entrar al Dashboard →
+            </button>
+        </div>
+
+        <div class="mt-8 text-center border-t border-slate-50 pt-4">
+            <button id="btnLogout" class="text-xs text-red-500 hover:text-red-700 font-medium hover:underline">
+                Cerrar sesión actual
+            </button>
+        </div>
+
+    </div>
+
+    <script type="module" src="./assets/js/selector.js"></script>
+</body>
+</html>
