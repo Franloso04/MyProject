@@ -22,11 +22,8 @@ form.addEventListener("submit", async (e) => {
       password,
     });
 
-    // Esperamos estructura tipo:
-    // { token, user: {...}, organization: {...} }
-
     if (!data.token || !data.user) {
-      throw new Error("Respuesta inválida del servidor (faltan datos).");
+      throw new Error("Respuesta inválida del servidor.");
     }
 
     saveSession(data);
@@ -34,5 +31,6 @@ form.addEventListener("submit", async (e) => {
     window.location.href = "./events.html";
   } catch (err) {
     errorMsg.textContent = err.message;
+    console.error("LOGIN ERROR:", err);
   }
 });

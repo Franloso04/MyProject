@@ -14,46 +14,71 @@ class UsuarioController {
         $this->usuario = new Usuario($this->db);
     }
 
+    // GET /usuarios
     public function index() {
+        header("Content-Type: application/json; charset=UTF-8");
+
         $stmt = $this->usuario->leer();
         $items = [];
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            array_push($items, $row);
+            $items[] = $row;
         }
 
         http_response_code(200);
-        echo json_encode(["data" => $items]);
+        echo json_encode([
+            "success" => true,
+            "data" => $items
+        ]);
     }
 
+    // POST /usuarios/login
     public function login() {
+        header("Content-Type: application/json; charset=UTF-8");
+
         $data = json_decode(file_get_contents("php://input"));
 
-        if (empty($data->email) || empty($data->password)) {
+        if (!isset($data->email) || !isset($data->password)) {
             http_response_code(400);
-            echo json_encode(["message" => "Faltan datos de login"]);
+            echo json_encode([
+                "success" => false,
+                "message" => "Faltan datos de login"
+            ]);
             return;
         }
 
-        $user = $this->usuario->login($data->email, $data->password);
+        $email = trim($data->email);
+        $password = trim($data->password);
+
+        if ($email === "" || $password === "") {
+            http_response_code(400);
+            echo json_encode([
+                "success" => false,
+                "message" => "Email y password son obligatorios"
+            ]);
+            return;
+        }
+
+        $user = $this->usuario->login($email, $password);
 
         if (!$user) {
             http_response_code(401);
-            echo json_encode(["message" => "Credenciales inválidas"]);
+            echo json_encode([
+                "success" => false,
+                "message" => "Credenciales inválidas"
+            ]);
             return;
         }
 
-        // token simple (sin JWT, pero válido para demo)
+        // Token simple (no JWT, pero sirve para tu proyecto)
         $token = base64_encode($user["id"] . "|" . $user["email"] . "|" . time());
 
         http_response_code(200);
         echo json_encode([
+            "success" => true,
             "message" => "Login exitoso",
             "token" => $token,
-            "user" => $user,
-            "organization" => [
-                "id" => $user["organizacion_id"]
-            ]
+            "user" => $user
         ]);
     }
 }

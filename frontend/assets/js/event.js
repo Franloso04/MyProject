@@ -1,59 +1,51 @@
 import { apiRequest } from "./api.js";
-import { requireAuth, getSession, setSelectedEvent, logout } from "./auth.js";
+import { getSession, requireAuth, logout } from "./auth.js";
 
 requireAuth();
 
 const session = getSession();
+const orgId = session.user.organizacion_id;
 
-document.getElementById("userInfo").textContent =
-  session.user?.nombre || session.user?.email || "Usuario";
-
-document.getElementById("orgInfo").textContent =
-  session.organization?.nombre || "Organización desconocida";
-
-document.getElementById("logoutBtn").addEventListener("click", logout);
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  logout();
+});
 
 async function loadEvents() {
-  const list = document.getElementById("eventsList");
-  list.innerHTML = "<p class='muted'>Cargando eventos...</p>";
+  const tbody = document.getElementById("eventsTableBody");
+  tbody.innerHTML = `<tr><td colspan="4">Cargando eventos...</td></tr>`;
 
   try {
-    // filtrar por organización:
-    // /eventos?organizacion_id=X
-    const orgId = session.organization?.id;
-
-    if (!orgId) {
-      throw new Error("No se detectó organización en sesión.");
-    }
-
-    const events = await apiRequest(`/eventos?organizacion_id=${orgId}`);
+    const events = await apiRequest(`/eventos?organizacion_id=${orgId}`, "GET");
 
     if (!Array.isArray(events) || events.length === 0) {
-      list.innerHTML = "<p class='muted'>No hay eventos disponibles.</p>";
+      tbody.innerHTML = `<tr><td colspan="4">No hay eventos disponibles.</td></tr>`;
       return;
     }
 
-    list.innerHTML = "";
+    tbody.innerHTML = "";
 
-    events.forEach((ev) => {
-      const div = document.createElement("div");
-      div.className = "card event-card";
+    for (const ev of events) {
+      const tr = document.createElement("tr");
 
-      div.innerHTML = `
-        <h3>${ev.nombre}</h3>
-        <p class="muted">${ev.descripcion || ""}</p>
-        <button class="btn btn-primary w100">Seleccionar</button>
+      tr.innerHTML = `
+        <td>${ev.id}</td>
+        <td>${ev.titulo}</td>
+        <td>${ev.fecha_inicio}</td>
+        <td>
+          <button class="btn btn-primary btn-sm" data-id="${ev.id}">
+            Ver Agenda
+          </button>
+        </td>
       `;
 
-      div.querySelector("button").addEventListener("click", () => {
-        setSelectedEvent(ev);
-        window.location.href = "./dashboard.html";
+      tr.querySelector("button").addEventListener("click", () => {
+        window.location.href = `agenda.html?event_id=${ev.id}`;
       });
 
-      list.appendChild(div);
-    });
+      tbody.appendChild(tr);
+    }
   } catch (err) {
-    list.innerHTML = `<p class="error-msg">${err.message}</p>`;
+    tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`;
   }
 }
 

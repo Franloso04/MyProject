@@ -1,66 +1,55 @@
 <?php
-// models/Evento.php
 
 class Evento {
     private $conn;
-    private $table_name = "eventos";
+    private $table = "eventos";
 
-    // Propiedades del objeto (iguales a tus columnas)
     public $id;
-    public $id_organizacion;
-    public $nombre;
+    public $organizacion_id;
+    public $titulo;
     public $descripcion;
     public $fecha_inicio;
     public $fecha_fin;
     public $estado;
-    
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
-    // LEER TODOS
-    public function leer() {
-        // Query uniendo con Organizaciones para obtener el nombre
-        $query = "SELECT e.*, o.nombre as nombre_organizacion 
-                  FROM " . $this->table_name . " e
-                  LEFT JOIN organizaciones o ON e.id_organizacion = o.id
-                  ORDER BY e.fecha_creacion DESC";
+    public function leerPorOrganizacion($org_id) {
+        $query = "SELECT * FROM " . $this->table . " 
+                  WHERE organizacion_id = ?
+                  ORDER BY fecha_inicio DESC";
 
         $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $org_id);
         $stmt->execute();
         return $stmt;
     }
 
-    // CREAR
+    public function leerUno($id) {
+        $query = "SELECT * FROM " . $this->table . " WHERE id = ? LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $id);
+        $stmt->execute();
+        return $stmt;
+    }
+
     public function crear() {
-        // Consulta SQL con placeholders (SECURE contra SQL Injection)
-        $query = "INSERT INTO " . $this->table_name . "
-                  SET
-                    id_organizacion = :id_organizacion,
-                    nombre = :nombre,
-                    descripcion = :descripcion,
-                    fecha_inicio = :fecha_inicio,
-                    fecha_fin = :fecha_fin,
-                    estado = :estado";
+        $query = "INSERT INTO " . $this->table . " 
+            (organizacion_id, titulo, descripcion, fecha_inicio, fecha_fin, estado)
+            VALUES (?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->conn->prepare($query);
 
-        // Limpieza básica
-        $this->nombre = htmlspecialchars(strip_tags($this->nombre));
-        
-        // Asignar valores (Binding)
-        $stmt->bindParam(":id_organizacion", $this->id_organizacion);
-        $stmt->bindParam(":nombre", $this->nombre);
-        $stmt->bindParam(":descripcion", $this->descripcion);
-        $stmt->bindParam(":fecha_inicio", $this->fecha_inicio);
-        $stmt->bindParam(":fecha_fin", $this->fecha_fin);
-        $stmt->bindParam(":estado", $this->estado);
-
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        return $stmt->execute([
+            $this->organizacion_id,
+            $this->titulo,
+            $this->descripcion,
+            $this->fecha_inicio,
+            $this->fecha_fin,
+            $this->estado
+        ]);
     }
 }
 ?>
