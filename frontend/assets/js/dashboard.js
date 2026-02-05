@@ -1,18 +1,26 @@
-import { requireAuth, getSelectedEvent, logout } from "./auth.js";
+import { apiRequest } from "./api.js";
+import { requireAuth, logout } from "./auth.js";
 
 requireAuth();
 
-const event = getSelectedEvent();
+document.getElementById("btnLogout").addEventListener("click", logout);
 
-if (!event) {
-  window.location.href = "./events.html";
+const eventId = localStorage.getItem("selected_event");
+if (!eventId) window.location.href = "selector.html";
+
+async function loadStats() {
+  try {
+    const res = await apiRequest(`/dashboard/stats?event_id=${eventId}`);
+
+    document.getElementById("total_attendees").innerText = res.data.total_attendees;
+    document.getElementById("total_revenue").innerText = "$" + res.data.total_revenue;
+    document.getElementById("total_sessions").innerText = res.data.total_sessions;
+    document.getElementById("total_access").innerText = res.data.total_access;
+
+  } catch (err) {
+    console.error(err);
+    alert("Error cargando estadísticas");
+  }
 }
 
-document.getElementById("eventName").textContent = event.nombre;
-document.getElementById("eventDesc").textContent = event.descripcion || "";
-
-document.getElementById("logoutBtn").addEventListener("click", logout);
-
-document.getElementById("agendaBtn").addEventListener("click", () => {
-  window.location.href = "./agenda.html";
-});
+loadStats();

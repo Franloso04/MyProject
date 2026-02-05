@@ -1,13 +1,16 @@
 <?php
 $root = dirname(dirname(__FILE__));
 include_once $root . '/config/database.php';
+include_once $root .'/models/dashboard.php';
 
 class DashboardController {
     private $db;
+    private
 
     public function __construct() {
         $database = new Database();
         $this->db = $database->getConnection();
+        $this->dashboard = new Dashboard($this->db);
     }
 
     public function getStats() {
@@ -15,9 +18,17 @@ class DashboardController {
         
         if (!$event_id) {
             http_response_code(400);
-            echo json_encode(["message" => "Falta event_id"]);
+            echo json_encode(["success" => false, "message" => "Falta event_id"]);
             return;
         }
+        
+        $stats = $this->dashboard->getStats($event_id);
+
+        http_response_code(200);
+        echo json_encode([
+            "success" => true,
+            "data" => $stats
+        ]);
 
         // 1. Total Asistentes
         $query1 = "SELECT COUNT(*) as total FROM asistentes WHERE id_evento = ?";

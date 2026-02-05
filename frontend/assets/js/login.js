@@ -1,6 +1,27 @@
 import { apiRequest } from "./api.js";
 import { saveSession } from "./auth.js";
 
+
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  try {
+    const res = await apiRequest("/usuarios/login", "POST", { email, password });
+
+    if (res.success) {
+      saveSession(res.token, res.user);
+      window.location.href = "selector.html";
+    }
+  } catch (err) {
+    alert(err.message || "Error de login");
+  }
+});
+  const errorMsg = document.getElementById("errorMsg");
+  errorMsg.textContent = "";
+
 const form = document.getElementById("loginForm");
 const errorMsg = document.getElementById("errorMsg");
 

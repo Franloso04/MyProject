@@ -51,5 +51,23 @@ class Evento {
             $this->estado
         ]);
     }
+      public function leer($organizacion_id = null) {
+        $query = "SELECT * FROM " . $this->table;
+
+        if ($organizacion_id) {
+            $query .= " WHERE organizacion_id = :org";
+        }
+
+        $query .= " ORDER BY id DESC";
+
+        $stmt = $this->conn->prepare($query);
+
+        if ($organizacion_id) {
+            $stmt->bindParam(":org", $organizacion_id);
+        }
+
+        $stmt->execute();
+        return $stmt;
+    }
 }
 ?>

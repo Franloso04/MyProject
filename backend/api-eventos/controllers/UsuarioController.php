@@ -49,6 +49,8 @@ class UsuarioController {
 
         $email = trim($data->email);
         $password = trim($data->password);
+        $user=$this->usuario->login($email, $password);
+   
 
         if ($email === "" || $password === "") {
             http_response_code(400);

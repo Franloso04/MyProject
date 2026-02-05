@@ -14,6 +14,8 @@ export function getSession() {
 }
 
 export function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
   localStorage.removeItem("session");
   localStorage.removeItem("selected_event");
   window.location.href = "./index.html";
@@ -26,7 +28,8 @@ export function getToken() {
 
 export function requireAuth() {
   const session = getSession();
-  if (!session) {
+  const token = getToken();
+  if (!session || !token) {
     window.location.href = "./index.html";
   }
 }

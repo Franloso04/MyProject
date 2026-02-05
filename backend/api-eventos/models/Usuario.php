@@ -16,7 +16,11 @@ class Usuario {
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-        return $stmt;
+        if ($stmt->rowCount() == 0) {
+            return false;
+        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     }
 
     // LOGIN
