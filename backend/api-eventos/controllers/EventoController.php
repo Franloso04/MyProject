@@ -1,91 +1,50 @@
 <?php
-include_once dirname(__DIR__) . '/config/database.php';
-include_once dirname(__DIR__) . '/models/Evento.php';
+class Ponente {
+    private $conn;
+    private $table = "ponentes";
 
-class EventoController {
-    private $db;
-    private $evento;
+    public $id;
+    public $id_evento; // IMPORTANTE: id_evento
+    public $nombre;
+    public $email;
+    public $bio;
+    public $foto_url;
 
-    public function __construct() {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->evento = new Evento($this->db);
+    public function __construct($db) {
+        $this->conn = $db;
     }
 
-    // GET /eventos
-    public function index() {
-        header("Content-Type: application/json; charset=UTF-8");
-
-        try {
-            // CORRECCIÓN: Leemos 'id_organizacion' de la URL
-            $orgId = isset($_GET['id_organizacion']) ? $_GET['id_organizacion'] : null;
-            
-            if ($orgId) {
-                // CORRECCIÓN: Filtro SQL usando la columna real 'id_organizacion'
-                $query = "SELECT * FROM eventos WHERE id_organizacion = :orgId ORDER BY fecha_inicio DESC";
-                $stmt = $this->db->prepare($query);
-                $stmt->bindParam(":orgId", $orgId);
-                $stmt->execute();
-            } else {
-                $stmt = $this->evento->leer();
-            }
-
-            $items = [];
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $items[] = $row;
-            }
-
-            echo json_encode(["success" => true, "data" => $items]);
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
-        }
+    // LEER POR EVENTO
+    public function leerPorEvento($id_evento) {
+        $query = "SELECT * FROM " . $this->table . " WHERE id_evento = ? ORDER BY nombre ASC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $id_evento);
+        $stmt->execute();
+        return $stmt;
     }
 
-  // POST /eventos
-  // Reemplaza tu función create() en EventoController.php con esto:
-    public function create() {
-        header("Content-Type: application/json; charset=UTF-8");
-        
-        // 1. Ver qué llega exactamente
-        $raw = file_get_contents("php://input");
-        $data = json_decode($raw);
+    // CREAR
+    public function crear() {
+        $query = "INSERT INTO " . $this->table . " 
+                  SET id_evento=:id_evento, nombre=:nombre, email=:email, bio=:bio, foto_url=:foto_url";
 
-        // 2. Si no llega JSON válido
-        if (is_null($data)) {
-            http_response_code(400);
-            echo json_encode(["success" => false, "message" => "El servidor recibió datos vacíos o inválidos.", "raw" => $raw]);
-            return;
-        }
+        $stmt = $this->conn->prepare($query);
 
-        // 3. Ver qué campos faltan
-        if (empty($data->titulo) || empty($data->id_organizacion)) {
-            http_response_code(400);
-            echo json_encode([
-                "success" => false, 
-                "message" => "Faltan datos obligatorios.",
-                "recibido" => $data // Esto te mostrará qué estás enviando realmente
-            ]);
-            return;
-        }
+        $this->id_evento = htmlspecialchars(strip_tags($this->id_evento));
+        $this->nombre = htmlspecialchars(strip_tags($this->nombre));
+        $this->email = htmlspecialchars(strip_tags($this->email));
+        $this->bio = htmlspecialchars(strip_tags($this->bio));
+        $this->foto_url = htmlspecialchars(strip_tags($this->foto_url));
 
-        // 4. Si todo está bien, procedemos
-        $this->evento->titulo = $data->titulo;
-        $this->evento->descripcion = $data->descripcion ?? '';
-        $this->evento->fecha_inicio = $data->fecha_inicio;
-        $this->evento->fecha_fin = $data->fecha_fin;
-        $this->evento->id_organizacion = $data->id_organizacion;
-        $this->evento->ubicacion_id = $data->ubicacion_id ?? null;
-        $this->evento->estado = 'BORRADOR';
+        $stmt->bindParam(":id_evento", $this->id_evento);
+        $stmt->bindParam(":nombre", $this->nombre);
+        $stmt->bindParam(":email", $this->email);
+        $stmt->bindParam(":bio", $this->bio);
+        $stmt->bindParam(":foto_url", $this->foto_url);
 
-        if ($this->evento->crear()) {
-            http_response_code(201);
-            echo json_encode(["success" => true, "message" => "Evento creado correctamente."]);
-        } else {
-            // Error 500 real para ver el log
-            http_response_code(500); 
-            echo json_encode(["success" => false, "message" => "Error SQL. Revisa el log de errores de PHP."]);
-        }
+        if ($stmt->execute()) return true;
+        error_log("Error crear ponente: " . print_r($stmt->errorInfo(), true));
+        return false;
     }
 }
 ?>

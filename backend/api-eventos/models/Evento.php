@@ -4,11 +4,11 @@ class Evento {
     private $table_name = "eventos";
 
     public $id;
-    public $titulo;
+    public $titulo; 
     public $descripcion;
     public $fecha_inicio;
     public $fecha_fin;
-    public $id_organizacion; // CORRECCIÓN: Nombre de propiedad cambiado
+    public $id_organizacion;
     public $ubicacion_id;
     public $estado;
 
@@ -26,14 +26,16 @@ class Evento {
 
     // CREAR
     public function crear() {
-        // CORRECCIÓN: Insertamos en la columna 'id_organizacion'
+        // CORRECCIÓN FINAL:
+        // 1. Usamos 'nombre' en vez de 'titulo' (arreglado antes)
+        // 2. Quitamos 'ubicacion_id' del SQL porque tu tabla no la tiene
         $query = "INSERT INTO " . $this->table_name . " 
-                  SET titulo=:titulo, 
+                  SET nombre=:titulo, 
                       descripcion=:descripcion, 
                       fecha_inicio=:fecha_inicio, 
                       fecha_fin=:fecha_fin, 
                       id_organizacion=:id_organizacion, 
-                      ubicacion_id=:ubicacion_id,
+                      /* ubicacion_id=:ubicacion_id, <-- ELIMINADO PARA EVITAR EL ERROR */
                       estado=:estado";
 
         $stmt = $this->conn->prepare($query);
@@ -49,8 +51,8 @@ class Evento {
         $stmt->bindParam(":descripcion", $this->descripcion);
         $stmt->bindParam(":fecha_inicio", $this->fecha_inicio);
         $stmt->bindParam(":fecha_fin", $this->fecha_fin);
-        $stmt->bindParam(":id_organizacion", $this->id_organizacion); // CORRECCIÓN
-        $stmt->bindParam(":ubicacion_id", $this->ubicacion_id);
+        $stmt->bindParam(":id_organizacion", $this->id_organizacion);
+        // $stmt->bindParam(":ubicacion_id", $this->ubicacion_id); <-- COMENTADO TAMBIÉN
         $stmt->bindParam(":estado", $this->estado);
 
         if ($stmt->execute()) {
