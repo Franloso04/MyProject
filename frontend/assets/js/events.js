@@ -1,18 +1,22 @@
 import { apiRequest } from "./api.js";
 import { requireAuth, logout, getSession } from "./auth.js";
 
+// 1. Verificar Sesión
 requireAuth();
 const session = getSession();
 
+// Elementos DOM
 const eventsGrid = document.getElementById("eventsGrid");
 const userNameDisplay = document.getElementById("userNameDisplay");
 const logoutBtn = document.getElementById("logoutBtn");
 const createEventForm = document.getElementById("createEventForm");
 const createEventModal = document.getElementById("createEventModal");
 
+// Inicializar UI
 if (session?.user) userNameDisplay.textContent = session.user.nombre_completo || "Usuario";
 if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
+// 2. FUNCIÓN CARGAR EVENTOS
 async function loadEvents() {
     const orgId = localStorage.getItem("selected_org");
 
@@ -23,7 +27,7 @@ async function loadEvents() {
     }
 
     try {
-        // CORRECCIÓN: Parámetro GET id_organizacion
+        // CORRECCIÓN: Enviamos ?id_organizacion=...
         const response = await apiRequest(`/eventos?id_organizacion=${orgId}`);
         const events = Array.isArray(response) ? response : (response.data || []);
 
@@ -38,6 +42,7 @@ async function loadEvents() {
             return;
         }
 
+        // Renderizar Tarjetas
         events.forEach(ev => {
             const fecha = new Date(ev.fecha_inicio).toLocaleDateString();
             const cardHTML = `
@@ -66,11 +71,12 @@ async function loadEvents() {
             eventsGrid.insertAdjacentHTML('beforeend', cardHTML);
         });
 
+        // Eventos de los botones "Gestionar"
         document.querySelectorAll('.btn-manage').forEach(btn => {
             btn.addEventListener('click', () => {
                 const eventData = { id: btn.dataset.id, nombre: btn.dataset.name };
                 localStorage.setItem("selected_event", JSON.stringify(eventData));
-                window.location.href = "dashboard.html";
+                window.location.href = "dashboard.html"; // Redirige al dashboard
             });
         });
 
@@ -80,7 +86,7 @@ async function loadEvents() {
     }
 }
 
-// CREAR EVENTO
+// 3. FUNCIÓN CREAR EVENTO
 if (createEventForm) {
     createEventForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -88,9 +94,11 @@ if (createEventForm) {
         const formData = new FormData(createEventForm);
         const data = Object.fromEntries(formData.entries());
         
-        // CORRECCIÓN: Enviamos id_organizacion
+        // CORRECCIÓN CRÍTICA: Enviamos 'id_organizacion' para que el backend lo entienda
         data.id_organizacion = localStorage.getItem("selected_org");
         data.estado = "BORRADOR";
+
+        console.log("Enviando evento:", data); // Mira la consola para confirmar
 
         try {
             const res = await apiRequest("/eventos", "POST", data);
@@ -98,14 +106,16 @@ if (createEventForm) {
             if (res.success) {
                 createEventModal.close();
                 createEventForm.reset();
-                loadEvents();
+                loadEvents(); // Recargar la lista inmediatamente
             } else {
-                alert("Error: " + res.message);
+                alert("Error del servidor: " + res.message);
             }
         } catch (err) {
             alert("Error de conexión al crear evento.");
+            console.error(err);
         }
     });
 }
 
+// Iniciar
 loadEvents();

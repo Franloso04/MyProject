@@ -48,6 +48,7 @@ class EventoController {
         $data = json_decode(file_get_contents("php://input"));
 
         // CORRECCIÓN: Validamos que llegue 'id_organizacion'
+        // IMPORTANTE: Aquí cambiamos $data->organizacion_id por $data->id_organizacion
         if (empty($data->titulo) || empty($data->id_organizacion)) {
             http_response_code(400);
             echo json_encode(["success" => false, "message" => "Faltan datos obligatorios (titulo, id_organizacion)."]);
@@ -58,8 +59,10 @@ class EventoController {
         $this->evento->descripcion = $data->descripcion ?? '';
         $this->evento->fecha_inicio = $data->fecha_inicio;
         $this->evento->fecha_fin = $data->fecha_fin;
+        
         // CORRECCIÓN CLAVE: Asignamos a la propiedad correcta del modelo
         $this->evento->id_organizacion = $data->id_organizacion; 
+        
         $this->evento->ubicacion_id = $data->ubicacion_id ?? null;
         $this->evento->estado = 'BORRADOR';
 
