@@ -1,8 +1,6 @@
 <?php
-
-$root = dirname(dirname(__FILE__));
-include_once $root . '/config/database.php';
-include_once $root . '/models/Evento.php';
+include_once dirname(__DIR__) . '/config/database.php';
+include_once dirname(__DIR__) . '/models/Evento.php';
 
 class EventoController {
     private $db;
@@ -14,62 +12,63 @@ class EventoController {
         $this->evento = new Evento($this->db);
     }
 
+    // GET /eventos
     public function index() {
-        $org_id = isset($_GET['organizacion_id']) ? $_GET['organizacion_id'] : null;
+        header("Content-Type: application/json; charset=UTF-8");
 
-        if (!$org_id) {
-            http_response_code(400);
-            echo json_encode(["message" => "Falta organizacion_id"]);
-            return;
+        try {
+            // Recibe 'organizacion_id' de la URL
+            $orgId = isset($_GET['organizacion_id']) ? $_GET['organizacion_id'] : null;
+            
+            if ($orgId) {
+                // Consulta manual para filtrar
+                $query = "SELECT * FROM eventos WHERE organizacion_id = :orgId ORDER BY fecha_inicio DESC";
+                $stmt = $this->db->prepare($query);
+                $stmt->bindParam(":orgId", $orgId);
+                $stmt->execute();
+            } else {
+                $stmt = $this->evento->leer();
+            }
+
+            $items = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $items[] = $row;
+            }
+
+            echo json_encode(["success" => true, "data" => $items]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["success" => false, "message" => "Error: " . $e->getMessage()]);
         }
-
-        $stmt = $this->evento->leerPorOrganizacion($org_id);
-
-        $items = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            array_push($items, $row);
-        }
-
-        http_response_code(200);
-        echo json_encode($items);
     }
 
-    public function show($id) {
-        $stmt = $this->evento->leerUno($id);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$row) {
-            http_response_code(404);
-            echo json_encode(["message" => "Evento no encontrado"]);
-            return;
-        }
-
-        http_response_code(200);
-        echo json_encode($row);
-    }
-
-    public function store() {
+    // POST /eventos
+    public function create() {
+        header("Content-Type: application/json; charset=UTF-8");
         $data = json_decode(file_get_contents("php://input"));
 
-        if (empty($data->organizacion_id) || empty($data->titulo) || empty($data->fecha_inicio)) {
+        // Validación
+        if (empty($data->titulo) || empty($data->organizacion_id)) {
             http_response_code(400);
-            echo json_encode(["message" => "Datos incompletos"]);
+            echo json_encode(["success" => false, "message" => "Faltan datos obligatorios."]);
             return;
         }
 
-        $this->evento->organizacion_id = $data->organizacion_id;
+        // Asignación estandarizada
         $this->evento->titulo = $data->titulo;
         $this->evento->descripcion = $data->descripcion ?? '';
         $this->evento->fecha_inicio = $data->fecha_inicio;
-        $this->evento->fecha_fin = $data->fecha_fin ?? null;
-        $this->evento->estado = $data->estado ?? 'DRAFT';
+        $this->evento->fecha_fin = $data->fecha_fin;
+        $this->evento->organizacion_id = $data->organizacion_id; // Coincide con BD
+        $this->evento->ubicacion_id = $data->ubicacion_id ?? null;
+        $this->evento->estado = 'BORRADOR';
 
         if ($this->evento->crear()) {
             http_response_code(201);
-            echo json_encode(["message" => "Evento creado"]);
+            echo json_encode(["success" => true, "message" => "Evento creado."]);
         } else {
-            http_response_code(500);
-            echo json_encode(["message" => "Error creando evento"]);
+            http_response_code(503);
+            echo json_encode(["success" => false, "message" => "Error al guardar en BD."]);
         }
     }
 }

@@ -3,6 +3,15 @@ import { requireAuth, logout, getSession } from "./auth.js";
 
 requireAuth();
 const session = getSession();
+const formData = new FormData(createEventForm);
+const data = Object.fromEntries(formData.entries());
+
+// ESTA LÍNEA ES CRÍTICA:
+data.organizacion_id = localStorage.getItem("selected_org"); 
+data.estado = "BORRADOR";
+
+// Debug para que veas qué se envía
+console.log("Enviando JSON:", JSON.stringify(data));
 
 // DOM
 const eventsGrid = document.getElementById("eventsGrid");
