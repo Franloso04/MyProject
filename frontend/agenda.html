@@ -1,26 +1,125 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agenda</title>
-  <link rel="stylesheet" href="./assets/css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda | EventManager</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#197fe6", "background-light": "#f6f7f8", "background-dark": "#111921" },
+                    fontFamily: { "display": ["Inter", "sans-serif"] }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="bg-background-light min-h-screen font-display text-slate-900 flex">
 
-  <header class="topbar">
-    <div>
-      <h2>Agenda del evento</h2>
-      <p class="muted" id="eventName"></p>
-    </div>
+    <aside class="w-64 bg-background-dark text-white flex-col hidden md:flex h-screen sticky top-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-700/50">
+            <span class="material-symbols-outlined text-primary mr-2">dataset</span>
+            <span class="font-bold text-lg tracking-wide">EventAdmin</span>
+        </div>
+        <nav class="flex-1 py-6 px-3 space-y-1">
+            <a href="events.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span class="font-medium">Volver a Eventos</span>
+            </a>
+            <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider mt-4">Gestión del Evento</div>
+            
+            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-medium">Métricas</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg border-r-4 border-primary transition-all">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span class="font-medium">Agenda</span>
+            </a>
+        </nav>
+    </aside>
 
-    <button id="logoutBtn" class="btn btn-danger">Cerrar sesión</button>
-  </header>
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <header class="h-16 bg-white border-b border-slate-200 flex justify-between items-center px-6 shadow-sm shrink-0">
+            <h1 class="text-xl font-bold text-slate-800">Agenda de Sesiones</h1>
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('createSpeakerModal').showModal()" class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">person_add</span> Ponentes
+                </button>
+                <button onclick="document.getElementById('createSessionModal').showModal()" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/30">
+                    <span class="material-symbols-outlined text-lg">add</span> Nueva Sesión
+                </button>
+            </div>
+        </header>
 
-  <main class="container">
-    <div id="agendaList" class="grid"></div>
-  </main>
+        <div class="flex-1 overflow-y-auto p-8" id="agendaContainer">
+            <div class="text-center py-10 text-slate-400">Cargando agenda...</div>
+        </div>
+    </main>
 
-  <script type="module" src="./assets/js/agenda.js"></script>
+    <dialog id="createSessionModal" class="p-0 rounded-2xl shadow-2xl backdrop:bg-slate-900/50 w-full max-w-lg">
+        <div class="bg-white p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">Nueva Sesión</h3>
+                <button onclick="document.getElementById('createSessionModal').close()" class="text-slate-400"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="createSessionForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Título</label>
+                    <input type="text" name="titulo" required class="w-full rounded-lg border-slate-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Descripción</label>
+                    <textarea name="descripcion" rows="2" class="w-full rounded-lg border-slate-200"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Inicio</label>
+                        <input type="datetime-local" name="fecha_hora_inicio" required class="w-full rounded-lg border-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Fin</label>
+                        <input type="datetime-local" name="fecha_hora_fin" required class="w-full rounded-lg border-slate-200">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Ubicación</label>
+                    <input type="text" name="ubicacion" placeholder="Ej: Sala Principal" class="w-full rounded-lg border-slate-200">
+                </div>
+                <button type="submit" class="w-full py-2 bg-primary text-white font-bold rounded-lg mt-2">Guardar Sesión</button>
+            </form>
+        </div>
+    </dialog>
+
+    <dialog id="createSpeakerModal" class="p-0 rounded-2xl shadow-2xl backdrop:bg-slate-900/50 w-full max-w-md">
+        <div class="bg-white p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">Añadir Ponente</h3>
+                <button onclick="document.getElementById('createSpeakerModal').close()" class="text-slate-400"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="createSpeakerForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Nombre Completo</label>
+                    <input type="text" name="nombre" required class="w-full rounded-lg border-slate-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Bio / Cargo</label>
+                    <input type="text" name="bio" class="w-full rounded-lg border-slate-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Email</label>
+                    <input type="email" name="email" class="w-full rounded-lg border-slate-200">
+                </div>
+                <button type="submit" class="w-full py-2 bg-slate-800 text-white font-bold rounded-lg mt-2">Guardar Ponente</button>
+            </form>
+        </div>
+    </dialog>
+
+    <script type="module" src="./assets/js/agenda.js"></script>
 </body>
 </html>

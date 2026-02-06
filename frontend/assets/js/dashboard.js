@@ -1,26 +1,35 @@
 import { apiRequest } from "./api.js";
-import { requireAuth, logout } from "./auth.js";
+import { requireAuth, getSession } from "./auth.js";
 
 requireAuth();
 
-document.getElementById("btnLogout").addEventListener("click", logout);
+const eventNameHeader = document.getElementById("eventNameHeader");
+const statAttendees = document.getElementById("stat-attendees");
+const statSessions = document.getElementById("stat-sessions");
+const statRevenue = document.getElementById("stat-revenue");
 
-const eventId = localStorage.getItem("selected_event");
-if (!eventId) window.location.href = "selector.html";
+// 1. Obtener Evento Seleccionado
+const eventData = JSON.parse(localStorage.getItem("selected_event"));
 
-async function loadStats() {
-  try {
-    const res = await apiRequest(`/dashboard/stats?event_id=${eventId}`);
-
-    document.getElementById("total_attendees").innerText = res.data.total_attendees;
-    document.getElementById("total_revenue").innerText = "$" + res.data.total_revenue;
-    document.getElementById("total_sessions").innerText = res.data.total_sessions;
-    document.getElementById("total_access").innerText = res.data.total_access;
-
-  } catch (err) {
-    console.error(err);
-    alert("Error cargando estadísticas");
-  }
+if (!eventData || !eventData.id) {
+    alert("No hay evento seleccionado");
+    window.location.href = "events.html";
+} else {
+    eventNameHeader.textContent = eventData.nombre;
+    loadStats(eventData.id);
 }
 
-loadStats();
+// 2. Cargar Métricas Reales
+async function loadStats(eventId) {
+    try {
+        const res = await apiRequest(`/dashboard/stats?evento_id=${eventId}`);
+        
+        if(res.success && res.data) {
+            statAttendees.textContent = res.data.total_asistentes || 0;
+            statSessions.textContent = res.data.total_sesiones || 0;
+            statRevenue.textContent = `$${res.data.ingresos_totales || 0}`;
+        }
+    } catch (err) {
+        console.error("Error loading stats", err);
+    }
+}

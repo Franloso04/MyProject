@@ -1,32 +1,105 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="./assets/css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | EventManager</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#197fe6", "background-light": "#f6f7f8", "background-dark": "#0f172a" },
+                    fontFamily: { "display": ["Inter", "sans-serif"] }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="bg-background-light min-h-screen font-display text-slate-900 flex">
 
-  <header class="topbar">
-    <div>
-      <h2 id="eventName"></h2>
-      <p id="eventDesc" class="muted"></p>
-    </div>
+    <aside class="w-64 bg-background-dark text-white flex-col hidden md:flex h-screen sticky top-0 z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-700/50">
+            <span class="material-symbols-outlined text-primary mr-2">dataset</span>
+            <span class="font-bold text-lg tracking-wide">EventAdmin</span>
+        </div>
+        <nav class="flex-1 py-6 px-3 space-y-1">
+            <a href="events.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span class="font-medium">Volver a Eventos</span>
+            </a>
+            <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider mt-4">Gestión del Evento</div>
+            
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg border-r-4 border-primary transition-all">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-medium">Métricas</span>
+            </a>
+            <a href="agenda.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span class="font-medium">Agenda</span>
+            </a>
+            <a href="#" onclick="alert('Próximamente: Asistentes')" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                <span class="material-symbols-outlined">group</span>
+                <span class="font-medium">Asistentes</span>
+            </a>
+        </nav>
+    </aside>
 
-    <button id="logoutBtn" class="btn btn-danger">Cerrar sesión</button>
-  </header>
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="h-16 bg-white border-b border-slate-200 flex justify-between items-center px-6 shadow-sm shrink-0">
+            <div class="flex items-center gap-2">
+                <h1 class="text-xl font-bold text-slate-800" id="eventNameHeader">Cargando evento...</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="userNameDisplay" class="text-sm font-medium text-slate-600">Usuario</span>
+            </div>
+        </header>
 
-  <main class="container">
-    <div class="grid">
-      <div class="card">
-        <h3>Agenda</h3>
-        <p class="muted">Visualiza sesiones del evento.</p>
-        <button id="agendaBtn" class="btn btn-primary w100">Ver agenda</button>
-      </div>
-    </div>
-  </main>
+        <div class="flex-1 overflow-y-auto p-8">
+            <h2 class="text-2xl font-bold mb-6">Resumen General</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-blue-50 rounded-lg text-primary">
+                            <span class="material-symbols-outlined">group</span>
+                        </div>
+                        <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">+12%</span>
+                    </div>
+                    <p class="text-slate-500 text-sm font-medium">Asistentes Totales</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1" id="stat-attendees">...</h3>
+                </div>
 
-  <script type="module" src="./assets/js/dashboard.js"></script>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+                            <span class="material-symbols-outlined">payments</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-sm font-medium">Ingresos Estimados</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1" id="stat-revenue">...</h3>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-orange-50 rounded-lg text-orange-600">
+                            <span class="material-symbols-outlined">mic</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-sm font-medium">Sesiones Activas</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1" id="stat-sessions">...</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-64 flex items-center justify-center text-slate-400">
+                <p>Gráfico de actividad en tiempo real (Próximamente)</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="./assets/js/dashboard.js"></script>
 </body>
 </html>
