@@ -1,5 +1,4 @@
 <?php
-
 class Usuario {
     private $conn;
     private $table = "usuarios";
@@ -8,24 +7,23 @@ class Usuario {
         $this->conn = $db;
     }
 
-    // LISTAR USUARIOS (sin password)
+    // LISTAR USUARIOS
     public function leer() {
-        $query = "SELECT id, organizacion_id, nombre_completo, email, rol, ultimo_acceso, fecha_creacion
+        // CORRECCIÓN: Usamos id_organizacion
+        $query = "SELECT id, id_organizacion, nombre_completo, email, rol, ultimo_acceso, fecha_creacion
                   FROM " . $this->table . "
                   ORDER BY id DESC";
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-        if ($stmt->rowCount() == 0) {
-            return false;
-        }
+        if ($stmt->rowCount() == 0) return false;
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
     }
 
     // LOGIN
     public function login($email, $password) {
-        $query = "SELECT id, organizacion_id, nombre_completo, email, hash_contrasena, rol
+        // CORRECCIÓN: Usamos id_organizacion
+        $query = "SELECT id, id_organizacion, nombre_completo, email, hash_contrasena, rol
                   FROM " . $this->table . "
                   WHERE email = ?
                   LIMIT 1";
@@ -34,29 +32,19 @@ class Usuario {
         $stmt->bindParam(1, $email);
         $stmt->execute();
 
-        if ($stmt->rowCount() == 0) {
-            return false;
-        }
+        if ($stmt->rowCount() == 0) return false;
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!password_verify($password, $row['hash_contrasena'])) {
-            return false;
-        }
+        if (!password_verify($password, $row['hash_contrasena'])) return false;
 
-        // Actualizar último acceso
         $this->actualizarUltimoAcceso($row['id']);
-
         unset($row['hash_contrasena']);
         return $row;
     }
 
-    // ACTUALIZAR ÚLTIMO ACCESO
     public function actualizarUltimoAcceso($userId) {
-        $query = "UPDATE " . $this->table . "
-                  SET ultimo_acceso = NOW()
-                  WHERE id = ?";
-
+        $query = "UPDATE " . $this->table . " SET ultimo_acceso = NOW() WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $userId);
         return $stmt->execute();

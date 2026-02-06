@@ -17,12 +17,12 @@ class EventoController {
         header("Content-Type: application/json; charset=UTF-8");
 
         try {
-            // Recibe 'organizacion_id' de la URL
-            $orgId = isset($_GET['organizacion_id']) ? $_GET['organizacion_id'] : null;
+            // CORRECCIÓN: Leemos 'id_organizacion' de la URL
+            $orgId = isset($_GET['id_organizacion']) ? $_GET['id_organizacion'] : null;
             
             if ($orgId) {
-                // Consulta manual para filtrar
-                $query = "SELECT * FROM eventos WHERE organizacion_id = :orgId ORDER BY fecha_inicio DESC";
+                // CORRECCIÓN: Filtramos por la columna 'id_organizacion'
+                $query = "SELECT * FROM eventos WHERE id_organizacion = :orgId ORDER BY fecha_inicio DESC";
                 $stmt = $this->db->prepare($query);
                 $stmt->bindParam(":orgId", $orgId);
                 $stmt->execute();
@@ -47,19 +47,19 @@ class EventoController {
         header("Content-Type: application/json; charset=UTF-8");
         $data = json_decode(file_get_contents("php://input"));
 
-        // Validación
-        if (empty($data->titulo) || empty($data->organizacion_id)) {
+        // CORRECCIÓN: Validamos que llegue 'id_organizacion'
+        if (empty($data->titulo) || empty($data->id_organizacion)) {
             http_response_code(400);
-            echo json_encode(["success" => false, "message" => "Faltan datos obligatorios."]);
+            echo json_encode(["success" => false, "message" => "Faltan datos obligatorios (titulo, id_organizacion)."]);
             return;
         }
 
-        // Asignación estandarizada
         $this->evento->titulo = $data->titulo;
         $this->evento->descripcion = $data->descripcion ?? '';
         $this->evento->fecha_inicio = $data->fecha_inicio;
         $this->evento->fecha_fin = $data->fecha_fin;
-        $this->evento->organizacion_id = $data->organizacion_id; // Coincide con BD
+        // CORRECCIÓN CLAVE: Asignamos a la propiedad correcta del modelo
+        $this->evento->id_organizacion = $data->id_organizacion; 
         $this->evento->ubicacion_id = $data->ubicacion_id ?? null;
         $this->evento->estado = 'BORRADOR';
 
