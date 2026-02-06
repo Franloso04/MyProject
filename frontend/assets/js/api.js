@@ -1,34 +1,40 @@
 import { API_BASE } from "./config.js";
-import { getToken } from "./auth.js";
+import { getSession } from "./auth.js";
 
 export async function apiRequest(endpoint, method = "GET", body = null) {
-  const headers = {
-    "Content-Type": "application/json",
-  };
+    const session = getSession();
+    const headers = {
+        // ESTA LÍNEA ES OBLIGATORIA para que PHP entienda los datos
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    };
 
-  const token = getToken();
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
+    if (session && session.token) {
+        headers["Authorization"] = `Bearer ${session.token}`;
+    }
 
-  const options = { method, headers };
+    const config = {
+        method,
+        headers,
+    };
 
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
+    if (body) {
+        config.body = JSON.stringify(body);
+    }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, options);
-
-  let data = null;
-  try {
-    data = await response.json();
-  } catch (err) {
-    throw new Error("Respuesta inválida del servidor");
-  }
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Error en la API");
-  }
-
-  return data;
+    try {
+        const response = await fetch(`${API_BASE}${endpoint}`, config);
+        
+        // Si el servidor devuelve error 500 (HTML), esto captura el fallo antes de romper
+        const text = await response.text();
+        try {
+            return JSON.parse(text); // Intentamos convertir a JSON
+        } catch (e) {
+            console.error("Respuesta no es JSON:", text); // Muestra el error real de PHP en consola
+            throw new Error("Error del servidor (PHP): " + text.substring(0, 100)); 
+        }
+    } catch (err) {
+        console.error("Error de red:", err);
+        throw err;
+    }
 }

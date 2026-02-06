@@ -13,38 +13,34 @@ if(form) {
         const password = document.getElementById("password").value.trim();
 
         try {
-            // Petición al backend
             const res = await apiRequest("/usuarios/login", "POST", { email, password });
-            
-            // DEBUG: Ver qué devuelve exactamente el servidor (Míralo en la consola F12)
-            console.log("Respuesta del servidor:", res);
+
+            // MIRA LA CONSOLA: Esto te dirá qué está llegando realmente
+            console.log("LOGIN RESPONSE:", res); 
 
             if (res.success) {
                 saveSession(res);
 
-                // --- SOLUCIÓN BLINDADA ---
-                // Buscamos el ID con ambos nombres posibles para evitar fallos tontos
-                // Si 'res.user' no existe, evitamos que el código explote con el '?.'
-                const orgId = res.user?.id_organizacion || res.user?.organizacion_id;
+                // BLINDAJE: Buscamos cualquiera de los dos nombres
+                // Si el PHP devuelve 'organizacion_id', lo pilla. Si devuelve 'id_organizacion', también.
+                const orgId = res.user.id_organizacion || res.user.organizacion_id;
 
                 if (orgId) {
                     localStorage.setItem("selected_org", orgId);
-                    console.log("Guardado Org ID:", orgId);
-                    window.location.href = "events.html";
+                    // IMPORTANTE: Redirigir a events.html
+                    window.location.href = "events.html"; 
                 } else {
-                    // Si llegamos aquí, es que el usuario existe pero la columna viene vacía
-                    console.warn("Usuario logueado pero sin organización. Asignando '1' por defecto.");
-                    localStorage.setItem("selected_org", "1"); 
+                    // Si el usuario no tiene org asignada, le ponemos la 1 para que no explote
+                    console.warn("Usuario sin org. Asignando 1 por defecto.");
+                    localStorage.setItem("selected_org", "1");
                     window.location.href = "events.html";
                 }
             } else {
-                // Si success es false, mostramos el mensaje del servidor
                 throw new Error(res.message || "Credenciales incorrectas");
             }
         } catch (err) {
-            console.error("Error Login:", err);
-            // Esto te mostrará el error real en la pantalla
-            errorMsg.textContent = "Error: " + (err.message || "Error de conexión");
+            console.error("LOGIN ERROR:", err);
+            errorMsg.textContent = "Error: " + (err.message || "Fallo de conexión");
         }
     });
 }

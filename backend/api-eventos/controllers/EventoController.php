@@ -21,7 +21,7 @@ class EventoController {
             $orgId = isset($_GET['id_organizacion']) ? $_GET['id_organizacion'] : null;
             
             if ($orgId) {
-                // CORRECCIÓN: Filtramos por la columna 'id_organizacion'
+                // CORRECCIÓN: Filtro SQL usando la columna real 'id_organizacion'
                 $query = "SELECT * FROM eventos WHERE id_organizacion = :orgId ORDER BY fecha_inicio DESC";
                 $stmt = $this->db->prepare($query);
                 $stmt->bindParam(":orgId", $orgId);
@@ -42,36 +42,49 @@ class EventoController {
         }
     }
 
-    // POST /eventos
+  // POST /eventos
+  // Reemplaza tu función create() en EventoController.php con esto:
     public function create() {
         header("Content-Type: application/json; charset=UTF-8");
-        $data = json_decode(file_get_contents("php://input"));
+        
+        // 1. Ver qué llega exactamente
+        $raw = file_get_contents("php://input");
+        $data = json_decode($raw);
 
-        // CORRECCIÓN: Validamos que llegue 'id_organizacion'
-        // IMPORTANTE: Aquí cambiamos $data->organizacion_id por $data->id_organizacion
-        if (empty($data->titulo) || empty($data->id_organizacion)) {
+        // 2. Si no llega JSON válido
+        if (is_null($data)) {
             http_response_code(400);
-            echo json_encode(["success" => false, "message" => "Faltan datos obligatorios (titulo, id_organizacion)."]);
+            echo json_encode(["success" => false, "message" => "El servidor recibió datos vacíos o inválidos.", "raw" => $raw]);
             return;
         }
 
+        // 3. Ver qué campos faltan
+        if (empty($data->titulo) || empty($data->id_organizacion)) {
+            http_response_code(400);
+            echo json_encode([
+                "success" => false, 
+                "message" => "Faltan datos obligatorios.",
+                "recibido" => $data // Esto te mostrará qué estás enviando realmente
+            ]);
+            return;
+        }
+
+        // 4. Si todo está bien, procedemos
         $this->evento->titulo = $data->titulo;
         $this->evento->descripcion = $data->descripcion ?? '';
         $this->evento->fecha_inicio = $data->fecha_inicio;
         $this->evento->fecha_fin = $data->fecha_fin;
-        
-        // CORRECCIÓN CLAVE: Asignamos a la propiedad correcta del modelo
-        $this->evento->id_organizacion = $data->id_organizacion; 
-        
+        $this->evento->id_organizacion = $data->id_organizacion;
         $this->evento->ubicacion_id = $data->ubicacion_id ?? null;
         $this->evento->estado = 'BORRADOR';
 
         if ($this->evento->crear()) {
             http_response_code(201);
-            echo json_encode(["success" => true, "message" => "Evento creado."]);
+            echo json_encode(["success" => true, "message" => "Evento creado correctamente."]);
         } else {
-            http_response_code(503);
-            echo json_encode(["success" => false, "message" => "Error al guardar en BD."]);
+            // Error 500 real para ver el log
+            http_response_code(500); 
+            echo json_encode(["success" => false, "message" => "Error SQL. Revisa el log de errores de PHP."]);
         }
     }
 }
