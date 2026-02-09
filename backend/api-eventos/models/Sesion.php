@@ -2,15 +2,13 @@
 class Sesion {
     private $conn;
     private $table = "sesiones";
-
-    // PROPIEDADES (Exactas a tu Base de Datos)
     public $id;
     public $id_evento;        // FK obligatoria
     public $titulo;           // Obligatorio
     public $descripcion;      // Opcional
     public $fecha_hora_inicio; // Obligatorio (DATETIME)
     public $fecha_hora_fin;    // Obligatorio (DATETIME)
-    public $ubicacion_id;     // Opcional (FK o NULL)
+    public $id_ubicacion;     // Opcional (FK o NULL)
 
     public function __construct($db) {
         $this->conn = $db;
@@ -33,7 +31,7 @@ class Sesion {
                       descripcion=:descripcion, 
                       fecha_hora_inicio=:inicio, 
                       fecha_hora_fin=:fin,
-                      ubicacion_id=:ubicacion";
+                      id_ubicacion=:ubicacion";
 
         $stmt = $this->conn->prepare($query);
 
