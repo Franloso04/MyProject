@@ -16,6 +16,8 @@ if (logoutBtn) logoutBtn.addEventListener("click", logout);
 // CARGAR EVENTOS
 async function loadEvents() {
     const orgId = localStorage.getItem("selected_org");
+    localStorage.removeItem("selected_event"); // <--- ESTO ES LA CLAVE
+    console.log("Contexto de evento limpiado. Listo para seleccionar uno nuevo.");
 
     if (!orgId) {
         alert("Error: No se detectó organización. Vuelve a iniciar sesión.");

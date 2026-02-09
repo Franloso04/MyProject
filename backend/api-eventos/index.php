@@ -167,4 +167,7 @@ switch ($resource) {
         echo json_encode(["message" => "Recurso no encontrado: " . $resource]);
         break;
 }
-?>
+?>   
+
+
+

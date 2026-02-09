@@ -1,7 +1,6 @@
 <?php
-$root = dirname(dirname(__FILE__));
-include_once $root . '/config/database.php';
-include_once $root . '/models/Sesion.php';
+include_once dirname(__DIR__) . '/config/database.php';
+include_once dirname(__DIR__) . '/models/Sesion.php';
 
 class SesionController {
     private $db;
@@ -13,51 +12,72 @@ class SesionController {
         $this->sesion = new Sesion($this->db);
     }
 
+    // GET /sesiones
     public function index() {
-        // Obtenemos el ID del evento de la URL (?event_id=1)
-        $event_id = isset($_GET['event_id']) ? $_GET['event_id'] : null;
+        header("Content-Type: application/json");
+        $id_evento = isset($_GET['id_evento']) ? $_GET['id_evento'] : null;
 
-        if (!$event_id) {
+        if ($id_evento) {
+            $stmt = $this->sesion->leerPorEvento($id_evento);
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode(["success" => true, "data" => $items]);
+        } else {
+            echo json_encode(["success" => true, "data" => []]);
+        }
+    }
+
+    // ALIAS: Si index.php llama a store(), redirigimos a create()
+    public function store() {
+        $this->create();
+    }
+
+    // POST /sesiones
+    public function create() {
+        header("Content-Type: application/json");
+        
+        // 1. Obtener datos
+        $raw = file_get_contents("php://input");
+        $data = json_decode($raw);
+
+        // 2. Diagnóstico: Si llega vacío
+        if (is_null($data)) {
             http_response_code(400);
-            echo json_encode(["message" => "Falta el parametro event_id"]);
+            echo json_encode(["success" => false, "message" => "JSON inválido o vacío."]);
             return;
         }
 
-        $stmt = $this->sesion->leerPorEvento($event_id);
-        $items = [];
-        
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            // El frontend espera esta estructura exacta
-            array_push($items, $row);
+        // 3. FLEXIBILIDAD DE NOMBRES (Aquí arreglamos el error 400)
+        // Buscamos la fecha con varios nombres posibles
+        $inicio = $data->fecha_hora_inicio ?? $data->fecha_inicio ?? $data->inicio ?? null;
+        $fin = $data->fecha_hora_fin ?? $data->fecha_fin ?? $data->fin ?? null;
+        $titulo = $data->titulo ?? $data->nombre ?? null;
+
+        // 4. Validación estricta
+        if (empty($titulo) || empty($data->id_evento) || empty($inicio)) {
+            http_response_code(400);
+            echo json_encode([
+                "success" => false, 
+                "message" => "Faltan datos obligatorios: titulo, id_evento o fecha de inicio.",
+                "recibido" => $data // Te dirá qué está llegando realmente en la consola
+            ]);
+            return;
         }
 
-        http_response_code(200);
-        echo json_encode($items); // React espera un array directo aquí, no {data: []} en Agenda.jsx
-    }
-    
-    public function store() {
-    $data = json_decode(file_get_contents("php://input"));
-
-    if(!empty($data->id_evento) && !empty($data->titulo) && !empty($data->hora_inicio)) {
+        // 5. Asignar al modelo
+        $this->sesion->titulo = $titulo;
         $this->sesion->id_evento = $data->id_evento;
-        $this->sesion->titulo = $data->titulo;
         $this->sesion->descripcion = $data->descripcion ?? '';
-        $this->sesion->hora_inicio = $data->hora_inicio;
-        $this->sesion->hora_fin = $data->hora_fin ?? null;
-        $this->sesion->id_ubicacion = $data->id_ubicacion ?? null;
-        $this->sesion->estado = $data->estado ?? 'DRAFT';
+        $this->sesion->fecha_hora_inicio = $inicio; // Usamos el valor encontrado
+        $this->sesion->fecha_hora_fin = $fin ?? $inicio; // Si no hay fin, usamos inicio
+        $this->sesion->ubicacion_id = $data->ubicacion_id ?? null;
 
-        if($this->sesion->crear()) {
+        if ($this->sesion->crear()) {
             http_response_code(201);
-            echo json_encode(["message" => "Sesión creada exitosamente."]);
+            echo json_encode(["success" => true, "message" => "Sesión creada correctamente."]);
         } else {
-            http_response_code(503);
-            echo json_encode(["message" => "Error al crear la sesión."]);
+            http_response_code(500);
+            echo json_encode(["success" => false, "message" => "Error SQL al crear sesión."]);
         }
-    } else {
-        http_response_code(400);
-        echo json_encode(["message" => "Datos incompletos."]);
     }
-}
 }
 ?>
