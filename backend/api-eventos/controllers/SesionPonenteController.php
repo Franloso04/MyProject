@@ -1,35 +1,42 @@
 <?php
-$root = dirname(dirname(__FILE__));
-include_once $root . '/config/database.php';
-include_once $root . '/models/SesionPonente.php';
+include_once dirname(__DIR__) . '/config/database.php';
+include_once dirname(__DIR__) . '/models/SesionPonente.php';
 
 class SesionPonenteController {
     private $db;
-    private $relacion;
+    private $modelo;
 
     public function __construct() {
         $database = new Database();
         $this->db = $database->getConnection();
-        $this->relacion = new SesionPonente($this->db);
+        $this->modelo = new SesionPonente($this->db);
     }
 
     public function asignar() {
+        header("Content-Type: application/json");
         $data = json_decode(file_get_contents("php://input"));
-        if(!empty($data->id_sesion) && !empty($data->id_ponente)) {
-            $this->relacion->id_sesion = $data->id_sesion;
-            $this->relacion->id_ponente = $data->id_ponente;
-            
-            if($this->relacion->asignar()) {
-                http_response_code(201);
-                echo json_encode(["message" => "Ponente asignado a la sesion."]);
+
+        if (empty($data->id_sesion)) {
+            echo json_encode(["success" => false, "message" => "ID de sesión requerido"]);
+            return;
+        }
+
+        // 1. Limpiamos asignaciones previas para esta sesión (Reasignación limpia)
+        $queryDelete = "DELETE FROM sesiones_ponentes WHERE id_sesion = ?";
+        $stmtDel = $this->db->prepare($queryDelete);
+        $stmtDel->execute([$data->id_sesion]);
+
+        // 2. Si se envió un ponente, creamos la nueva vinculación
+        if (!empty($data->id_ponente)) {
+            $queryInsert = "INSERT INTO sesiones_ponentes (id_sesion, id_ponente) VALUES (?, ?)";
+            $stmtIns = $this->db->prepare($queryInsert);
+            if ($stmtIns->execute([$data->id_sesion, $data->id_ponente])) {
+                echo json_encode(["success" => true, "message" => "Asignación actualizada"]);
             } else {
-                http_response_code(503);
-                echo json_encode(["message" => "No se pudo asignar."]);
+                echo json_encode(["success" => false, "message" => "Error al vincular"]);
             }
         } else {
-            http_response_code(400);
-            echo json_encode(["message" => "Faltan IDs."]);
+            echo json_encode(["success" => true, "message" => "Ponente desvinculado"]);
         }
     }
 }
-?>

@@ -116,6 +116,24 @@
             </form>
         </div>
     </dialog>
+    <dialog id="assignSpeakerModal" class="p-0 rounded-2xl shadow-2xl backdrop:bg-slate-900/50 w-full max-w-sm">
+    <div class="bg-white p-6">
+        <h3 class="text-lg font-bold mb-4 text-slate-800">Gestionar Ponente</h3>
+        <input type="hidden" id="assign_id_sesion">
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Ponente Disponible</label>
+                <select id="assignSpeakerSelect" class="w-full rounded-lg border-slate-200 text-sm">
+                    </select>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('assignSpeakerModal').close()" class="flex-1 py-2 text-slate-500 font-medium">Cancelar</button>
+                <button id="btnConfirmAssign" class="flex-1 py-2 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/30">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</dialog>
 
     <script type="module" src="./assets/js/agenda.js"></script>
 </body>

@@ -16,12 +16,16 @@ class Sesion {
     }
 
     public function leerPorEvento($id_evento) {
-        $query = "SELECT * FROM " . $this->table . " WHERE id_evento = ? ORDER BY hora_inicio ASC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $id_evento);
-        $stmt->execute();
-        return $stmt;
-    }
+    $query = "SELECT s.*, p.nombre_completo as nombre_ponente, p.biografia
+              FROM sesiones s
+              LEFT JOIN sesiones_ponentes sp ON s.id = sp.id_sesion
+              LEFT JOIN ponentes p ON sp.id_ponente = p.id
+              WHERE s.id_evento = ? 
+              ORDER BY s.hora_inicio ASC";
+    $stmt = $this->conn->prepare($query);
+    $stmt->execute([$id_evento]);
+    return $stmt;
+}
 
     public function crear() {
         $query = "INSERT INTO " . $this->table . " 
