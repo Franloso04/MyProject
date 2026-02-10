@@ -196,6 +196,33 @@ if (createSpeakerForm) {
             loadSpeakers(); // Actualizamos los selectores
         }
     });
+    // Función para guardar los cambios de Branding e Idioma
+async function saveEventSettings() {
+    const selectedLangs = Array.from(document.querySelectorAll('input[name="lang"]:checked')).map(el => el.value);
+    const primaryColor = document.getElementById('colorPicker').value;
+
+    const payload = {
+        nombre: document.getElementById('editNombre').value,
+        fecha_inicio: document.getElementById('editInicio').value,
+        fecha_fin: document.getElementById('editFin').value,
+        ubicacion: document.getElementById('editUbicacion').value,
+        descripcion: document.getElementById('editDesc').value,
+        languages: selectedLangs,
+        primary_color: primaryColor
+    };
+
+    const res = await apiRequest(`/eventos/${eventData.id}`, "PUT", payload);
+    if (res.success) {
+        alert("Configuración guardada. Aplicando cambios...");
+        // Actualizamos el objeto en localStorage para que el branding se vea al instante
+        eventData.configuracion = JSON.stringify({
+            languages: selectedLangs,
+            primary_color: primaryColor
+        });
+        localStorage.setItem("selected_event", JSON.stringify(eventData));
+        location.reload(); 
+    }
+}
 }
 
 // Iniciar la página

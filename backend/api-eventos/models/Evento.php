@@ -62,5 +62,23 @@ class Evento {
         error_log("Error BD Evento: " . print_r($stmt->errorInfo(), true));
         return false;
     }
+    public function actualizar() {
+    $query = "UPDATE " . $this->table . " 
+              SET nombre=:nombre, descripcion=:descripcion, fecha_inicio=:inicio, 
+                  fecha_fin=:fin, ubicacion=:ubicacion, configuracion=:config
+              WHERE id=:id";
+
+    $stmt = $this->conn->prepare($query);
+
+    $stmt->bindParam(":nombre", $this->nombre);
+    $stmt->bindParam(":descripcion", $this->descripcion);
+    $stmt->bindParam(":inicio", $this->fecha_inicio);
+    $stmt->bindParam(":fin", $this->fecha_fin);
+    $stmt->bindParam(":ubicacion", $this->ubicacion);
+    $stmt->bindParam(":config", $this->configuracion); 
+    $stmt->bindParam(":id", $this->id);
+
+    return $stmt->execute();
+}
 }
 ?>

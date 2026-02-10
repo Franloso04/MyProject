@@ -96,5 +96,36 @@ class EventoController {
             echo json_encode(["success" => false, "message" => "Error interno al crear evento."]);
         }
     }
+
+    public function update($id) {
+    header("Content-Type: application/json");
+    $data = json_decode(file_get_contents("php://input"));
+
+    if (!$data) {
+        echo json_encode(["success" => false, "message" => "Datos inválidos"]);
+        return;
+    }
+
+    $this->evento->id = $id;
+    $this->evento->nombre = $data->nombre;
+    $this->evento->descripcion = $data->descripcion;
+    $this->evento->fecha_inicio = $data->fecha_inicio;
+    $this->evento->fecha_fin = $data->fecha_fin;
+    $this->evento->ubicacion = $data->ubicacion;
+    
+    // Empaquetamos Branding e Idiomas en el JSON de configuración
+    $this->evento->configuracion = json_encode([
+        "languages" => $data->languages ?? ["es"],
+        "primary_color" => $data->primary_color ?? "#197fe6",
+        "logo_url" => $data->logo_url ?? ""
+    ]);
+
+    if ($this->evento->actualizar()) {
+        echo json_encode(["success" => true, "message" => "Evento actualizado correctamente"]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["success" => false, "message" => "Error al actualizar"]);
+    }
+}
 }
 ?>

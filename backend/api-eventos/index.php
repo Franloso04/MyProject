@@ -32,16 +32,18 @@ error_log("Resource: " . $resource . " | ID: " . $id);
 switch ($resource) {
     // --- 1. EVENTOS ---
     case 'eventos':
-        include_once 'controllers/EventoController.php';
-        $controller = new EventoController();
-        if ($request_method == 'GET' && !$id) {
-            $controller->index();
-        } elseif ($request_method == 'GET' && $id) {
-            $controller->show($id);
-        } elseif ($request_method == 'POST') {
-            $controller->store();
-        }
-        break;
+    include_once 'controllers/EventoController.php';
+    $controller = new EventoController();
+    if ($request_method == 'GET' && !$id) {
+        $controller->index();
+    } elseif ($request_method == 'GET' && $id) {
+        $controller->show($id);
+    } elseif ($request_method == 'POST') {
+        $controller->store();
+    } elseif ($request_method == 'PUT' && $id) { // <--- AÑADIR ESTO
+        $controller->update($id);
+    }
+    break;
 
     // --- 2. ASISTENTES ---
     case 'asistentes':
