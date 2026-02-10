@@ -97,7 +97,7 @@ class EventoController {
         }
     }
 
-    public function update($id) {
+     public function update($id) {
     header("Content-Type: application/json");
     $data = json_decode(file_get_contents("php://input"));
 
@@ -107,21 +107,15 @@ class EventoController {
     }
 
     $this->evento->id = $id;
-    $this->evento->nombre = $data->nombre;
-    $this->evento->descripcion = $data->descripcion;
+    $this->evento->nombre = $data->nombre ?? $data->titulo;
+    $this->evento->descripcion = $data->descripcion ?? '';
     $this->evento->fecha_inicio = $data->fecha_inicio;
     $this->evento->fecha_fin = $data->fecha_fin;
-    $this->evento->ubicacion = $data->ubicacion;
-    
-    // Empaquetamos Branding e Idiomas en el JSON de configuración
-    $this->evento->configuracion = json_encode([
-        "languages" => $data->languages ?? ["es"],
-        "primary_color" => $data->primary_color ?? "#197fe6",
-        "logo_url" => $data->logo_url ?? ""
-    ]);
+    $this->evento->ubicacion = $data->ubicacion ?? '';
+    $this->evento->configuracion = $data->configuracion ?? null;
 
     if ($this->evento->actualizar()) {
-        echo json_encode(["success" => true, "message" => "Evento actualizado correctamente"]);
+        echo json_encode(["success" => true, "message" => "Evento actualizado"]);
     } else {
         http_response_code(500);
         echo json_encode(["success" => false, "message" => "Error al actualizar"]);

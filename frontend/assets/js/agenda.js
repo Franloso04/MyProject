@@ -5,12 +5,22 @@ import { renderNavbar } from "../components/navbar.js";
 requireAuth();
 renderNavbar();
 
-const eventData = JSON.parse(localStorage.getItem("selected_event"));
+
 const agendaContainer = document.getElementById("agendaContainer");
 const createSessionForm = document.getElementById("createSessionForm");
 const createSpeakerForm = document.getElementById("createSpeakerForm");
 const speakerSelect = document.getElementById("speakerSelect");
 
+const eventData = JSON.parse(localStorage.getItem("selected_event"));
+if (eventData && eventData.color) {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .bg-primary { background-color: ${eventData.color} !important; }
+        .text-primary { color: ${eventData.color} !important; }
+        .border-primary { border-color: ${eventData.color} !important; }
+    `;
+    document.head.appendChild(style);
+}
 // Variable global para el modal de asignación profesional
 let currentSessionId = null;
 
