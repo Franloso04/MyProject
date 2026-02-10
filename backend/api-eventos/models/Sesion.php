@@ -9,7 +9,7 @@ class Sesion {
     public $descripcion;
     public $hora_inicio; 
     public $hora_fin;    
-    public $id_ubicacion; 
+    public $id_ubicacion; // Cambiado de ubicacion_id para ser consistente
 
     public function __construct($db) {
         $this->conn = $db;

@@ -5,140 +5,111 @@ import { renderNavbar } from "../components/navbar.js";
 requireAuth();
 renderNavbar();
 
-// --- SEGURIDAD DE CONTEXTO ---
-const eventDataJSON = localStorage.getItem("selected_event");
-if (!eventDataJSON) {
-    alert("⚠️ Debes seleccionar un evento para gestionar la agenda.");
-    window.location.href = "events.html";
-    throw new Error("No event context");
-}
-const eventData = JSON.parse(eventDataJSON);
-// -----------------------------
-
+const eventData = JSON.parse(localStorage.getItem("selected_event"));
 const agendaContainer = document.getElementById("agendaContainer");
 const createSessionForm = document.getElementById("createSessionForm");
 const createSpeakerForm = document.getElementById("createSpeakerForm");
+const speakerSelect = document.getElementById("speakerSelect");
 
-// 1. CARGAR SESIONES
-async function loadSessions() {
-    if (!agendaContainer) return;
-
-    try {
-        const res = await apiRequest(`/sesiones?id_evento=${eventData.id}`);
-        const sesiones = res.data || [];
-        agendaContainer.innerHTML = "";
-
-        if (sesiones.length === 0) {
-            agendaContainer.innerHTML = `<p class="text-center text-slate-400 py-10 italic">No hay sesiones programadas.</p>`;
-            return;
-        }
-
-        sesiones.forEach(ses => {
-            // CORRECCIÓN: Usamos 'hora_inicio' que es el nombre real en tu BD
-            const horaStr = ses.hora_inicio; 
-            const hora = horaStr ? new Date(horaStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--";
-
-            const card = `
-                <div class="bg-white p-4 rounded-xl border-l-4 border-primary shadow-sm mb-3">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-xs font-bold text-primary bg-blue-50 px-2 py-1 rounded mb-2 inline-block">${hora}</span>
-                            <h3 class="font-bold text-lg text-slate-800">${ses.titulo}</h3>
-                            <p class="text-sm text-slate-500 mt-1">${ses.descripcion || ""}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            agendaContainer.insertAdjacentHTML("beforeend", card);
-        });
-
-    } catch (err) {
-        console.error("Error cargando sesiones:", err);
-        agendaContainer.innerHTML = `<p class="text-center text-red-500 py-10">Error cargando sesiones.</p>`;
-    }
-}
-
-// 2. CARGAR PONENTES
+// 1. CARGAR PONENTES Y RELLENAR EL SELECTOR
 async function loadSpeakers() {
     try {
         const res = await apiRequest(`/ponentes?id_evento=${eventData.id}`);
-        console.log("Ponentes cargados:", res.data || []);
-    } catch (err) {
-        console.error("Error cargando ponentes:", err);
-    }
+        const ponentes = res.data || [];
+        
+        if (speakerSelect) {
+            speakerSelect.innerHTML = '<option value="">Seleccionar ponente (opcional)</option>';
+            ponentes.forEach(p => {
+                speakerSelect.insertAdjacentHTML("beforeend", 
+                    `<option value="${p.id}">${p.nombre_completo}</option>`);
+            });
+        }
+    } catch (err) { console.error("Error cargando ponentes:", err); }
 }
 
-// 3. CREAR SESIÓN
+// 2. CARGAR SESIONES CON DISEÑO MEJORADO (Día y Fecha)
+async function loadSessions() {
+    if (!agendaContainer) return;
+    try {
+        const res = await apiRequest(`/sesiones?id_evento=${eventData.id}`);
+        const sesiones = res.data || [];
+        agendaContainer.innerHTML = sesiones.length === 0 ? '<p class="text-center py-10 opacity-50 italic">No hay sesiones.</p>' : "";
+
+        sesiones.forEach(ses => {
+            const start = new Date(ses.hora_inicio);
+            const end = new Date(ses.hora_fin);
+            
+            // Formateo profesional de fecha: "lunes, 12 de mayo"
+            const fechaLegible = start.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+            const hInicio = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const hFin = end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            agendaContainer.insertAdjacentHTML("beforeend", `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="material-symbols-outlined text-primary text-sm">calendar_today</span>
+                                <span class="text-xs font-bold uppercase text-slate-400">${fechaLegible}</span>
+                            </div>
+                            <h3 class="font-bold text-xl text-slate-800">${ses.titulo}</h3>
+                            <p class="text-slate-500 text-sm mt-1">${ses.descripcion || ""}</p>
+                        </div>
+                        <div class="bg-primary/5 p-3 rounded-xl border border-primary/10 text-center min-w-[120px]">
+                            <span class="text-[10px] font-bold text-primary uppercase block">Horario</span>
+                            <span class="text-primary font-bold text-lg">${hInicio} - ${hFin}</span>
+                        </div>
+                    </div>
+                </div>`);
+        });
+    } catch (err) { console.error(err); }
+}
+
+// 3. CREAR SESIÓN (Incluyendo el ID del ponente)
 if (createSessionForm) {
     createSessionForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(createSessionForm);
-        
         const payload = {
             id_evento: eventData.id,
             titulo: formData.get('titulo'),
             descripcion: formData.get('descripcion'),
-            hora_inicio: formData.get('hora_inicio'), 
-            hora_fin: formData.get('hora_fin'),      
+            hora_inicio: formData.get('hora_inicio'),
+            hora_fin: formData.get('hora_fin'),
+            id_ponente: formData.get('id_ponente') || null, // Nuevo campo
             id_ubicacion: formData.get('id_ubicacion') || null
         };
 
-        // VALIDACIÓN: Ahora los nombres coinciden con el HTML
-        if (!payload.titulo || !payload.hora_inicio) {
-            alert("⚠️ Título y Hora de Inicio son obligatorios");
-            return;
-        }
-
-        try {
-            const res = await apiRequest("/sesiones", "POST", payload);
-            if (res.success) {
-                document.getElementById("createSessionModal").close();
-                createSessionForm.reset();
-                loadSessions();
-            } else {
-                alert("Error: " + (res.message || "No se pudo crear la sesión"));
-            }
-        } catch (err) {
-            console.error("Error en la petición:", err);
-            alert("❌ Error de conexión al crear sesión.");
+        const res = await apiRequest("/sesiones", "POST", payload);
+        if (res.success) {
+            document.getElementById("createSessionModal").close();
+            createSessionForm.reset();
+            loadSessions();
         }
     });
 }
 
-// 4. CREAR PONENTE
+// 4. CREAR PONENTE (Y actualizar el selector al terminar)
 if (createSpeakerForm) {
     createSpeakerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(createSpeakerForm);
-
         const payload = {
             id_evento: eventData.id,
-            nombre_completo: formData.get("nombre_completo"), 
+            nombre_completo: formData.get("nombre_completo"),
             biografia: formData.get("biografia"),
             email: formData.get("email")
         };
 
-        if (!payload.nombre_completo) {
-            alert("⚠️ El nombre del ponente es obligatorio.");
-            return;
-        }
-
-        try {
-            const res = await apiRequest("/ponentes", "POST", payload);
-            if (res.success) {
-                document.getElementById("createSpeakerModal").close();
-                createSpeakerForm.reset();
-                loadSpeakers();
-            } else {
-                alert("❌ Error: " + (res.message || "No se pudo crear el ponente."));
-            }
-        } catch (err) {
-            console.error("Error en la petición:", err);
-            alert("❌ Error de conexión con el servidor.");
+        const res = await apiRequest("/ponentes", "POST", payload);
+        if (res.success) {
+            document.getElementById("createSpeakerModal").close();
+            createSpeakerForm.reset();
+            loadSpeakers(); // Actualizamos el selector para que aparezca el nuevo ponente
         }
     });
 }
 
-// Iniciar
+// Iniciar la página
 loadSessions();
 loadSpeakers();

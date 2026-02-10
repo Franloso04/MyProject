@@ -108,8 +108,10 @@ switch ($resource) {
         $controller = new PonenteController();
         if ($request_method == 'GET') {
             $controller->index();
-        }
-        break;
+     } elseif ($request_method == 'POST') { // AÑADIR ESTA CONDICIÓN
+           $controller->store();
+     }
+         break;
 
     // --- 8. DASHBOARD (ESTADÍSTICAS) ---
     case 'dashboard':
