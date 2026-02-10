@@ -34,6 +34,14 @@ class Ponente {
 
         $stmt = $this->conn->prepare($query);
 
+        $this->id_evento = htmlspecialchars(strip_tags($this->id_evento));
+        $this->nombre_completo = htmlspecialchars(strip_tags($this->nombre_completo));
+        $this->biografia = htmlspecialchars(strip_tags($this->biografia));
+        $this->foto_url = htmlspecialchars(strip_tags($this->foto_url));
+        $this->empresa = htmlspecialchars(strip_tags($this->empresa));
+        $this->cargo = htmlspecialchars(strip_tags($this->cargo));
+
+
         $stmt->bindParam(":id_evento", $this->id_evento);
         $stmt->bindParam(":nombre", $this->nombre_completo);
         $stmt->bindParam(":bio", $this->biografia);
@@ -41,6 +49,8 @@ class Ponente {
         $stmt->bindParam(":empresa", $this->empresa);
         $stmt->bindParam(":cargo", $this->cargo);
 
-        return $stmt->execute();
+        if ($stmt->execute()) return true;
+        return false;
     }
 }
+?>

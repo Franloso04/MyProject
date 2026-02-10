@@ -34,7 +34,9 @@ async function loadSessions() {
         }
 
         sesiones.forEach(ses => {
-            const hora = new Date(ses.fecha_hora_inicio).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            // CORRECCIÓN: Usamos 'hora_inicio' que es el nombre real en tu BD
+            const horaStr = ses.hora_inicio || ses.fecha_hora_inicio;
+            const hora = horaStr ? new Date(horaStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--";
 
             const card = `
                 <div class="bg-white p-4 rounded-xl border-l-4 border-primary shadow-sm mb-3">
@@ -66,25 +68,25 @@ async function loadSpeakers() {
     }
 }
 
-// 3. CREAR SESIÓN
+// 3. CREAR SESIÓN (Listener independiente y nombres de campos corregidos)
 if (createSessionForm) {
     createSessionForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(createSessionForm);
         
-        // Mapeamos los nombres del HTML a las propiedades que espera el Modelo PHP
+        // Mapeamos los nombres del HTML (hora_inicio) a lo que espera el servidor
         const payload = {
             id_evento: eventData.id,
             titulo: formData.get('titulo'),
             descripcion: formData.get('descripcion'),
-            hora_inicio: formData.get('fecha_hora_inicio'), // Captura del input Inicio
-            hora_fin: formData.get('fecha_hora_fin'),       // Captura del input Fin
-            id_ubicacion: formData.get('ubicacion_id') || null
+            hora_inicio: formData.get('hora_inicio'), 
+            hora_fin: formData.get('hora_fin'),      
+            id_ubicacion: formData.get('id_ubicacion') || null
         };
 
-        // Validación corregida
+        // Validación: Aseguramos que los nombres coincidan con el HTML
         if (!payload.titulo || !payload.hora_inicio) {
-            alert("⚠️ Título y Fecha Inicio son obligatorios");
+            alert("⚠️ Título y Hora de Inicio son obligatorios");
             return;
         }
 
@@ -93,37 +95,37 @@ if (createSessionForm) {
             if (res.success) {
                 document.getElementById("createSessionModal").close();
                 createSessionForm.reset();
-                // Recargar sesiones para ver la nueva
-                if (typeof loadSessions === "function") loadSessions();
+                loadSessions();
             } else {
-                alert("Error: " + res.message);
+                alert("Error: " + (res.message || "No se pudo crear la sesión"));
             }
         } catch (err) {
             console.error("Error en la petición:", err);
+            alert("❌ Error de conexión al crear sesión.");
         }
     });
 }
-// 4. CREAR PONENTE
+
+// 4. CREAR PONENTE (Listener independiente y nombres de campos corregidos)
 if (createSpeakerForm) {
     createSpeakerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         const formData = new FormData(createSpeakerForm);
 
         const payload = {
             id_evento: eventData.id,
-            nombre: formData.get("nombre"),
+            nombre_completo: formData.get("nombre_completo"), // Coincide con name="nombre_completo" del HTML
+            biografia: formData.get("biografia"),
             email: formData.get("email")
         };
 
-        if (!payload.nombre) {
+        if (!payload.nombre_completo) {
             alert("⚠️ El nombre del ponente es obligatorio.");
             return;
         }
 
         try {
             const res = await apiRequest("/ponentes", "POST", payload);
-
             if (res.success) {
                 document.getElementById("createSpeakerModal").close();
                 createSpeakerForm.reset();
@@ -131,9 +133,8 @@ if (createSpeakerForm) {
             } else {
                 alert("❌ Error: " + (res.message || "No se pudo crear el ponente."));
             }
-
         } catch (err) {
-            console.error(err);
+            console.error("Error en la petición:", err);
             alert("❌ Error de conexión con el servidor.");
         }
     });

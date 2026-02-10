@@ -9,7 +9,7 @@ class Sesion {
     public $descripcion;
     public $hora_inicio; // Nombre real en BD
     public $hora_fin;    // Nombre real en BD
-    public $id_ubicacion; // Nombre real en BD (antes era ubicacion_id)
+    public $id_ubicacion; // Nombre real en BD
 
     public function __construct($db) {
         $this->conn = $db;
@@ -35,32 +35,25 @@ class Sesion {
 
         $stmt = $this->conn->prepare($query);
 
+        // Limpieza de datos
+        $this->id_evento = htmlspecialchars(strip_tags($this->id_evento));
+        $this->titulo = htmlspecialchars(strip_tags($this->titulo));
+        $this->descripcion = htmlspecialchars(strip_tags($this->descripcion));
+        $this->hora_inicio = htmlspecialchars(strip_tags($this->hora_inicio));
+        $this->hora_fin = htmlspecialchars(strip_tags($this->hora_fin));
+        $ubicacion_val = !empty($this->id_ubicacion) ? $this->id_ubicacion : null;
+
         $stmt->bindParam(":id_evento", $this->id_evento);
         $stmt->bindParam(":titulo", $this->titulo);
         $stmt->bindParam(":descripcion", $this->descripcion);
         $stmt->bindParam(":inicio", $this->hora_inicio);
         $stmt->bindParam(":fin", $this->hora_fin);
-        $stmt->bindParam(":ubicacion", $this->id_ubicacion);
+        $stmt->bindParam(":ubicacion", $ubicacion_val);
 
-         // Limpieza
-        $this->id_evento = htmlspecialchars(strip_tags($this->id_evento));
-        $this->titulo = htmlspecialchars(strip_tags($this->titulo));
-        $this->fecha_hora_inicio = htmlspecialchars(strip_tags($this->fecha_hora_inicio));
-        $this->fecha_hora_fin = htmlspecialchars(strip_tags($this->fecha_hora_fin));
-        $this->descripcion = !empty($this->descripcion) ? htmlspecialchars(strip_tags($this->descripcion)) : '';
-        $ubicacion_val = !empty($this->ubicacion_id) ? htmlspecialchars(strip_tags($this->ubicacion_id)) : null;
+        if ($stmt->execute()) return true;
         
-        return $stmt->execute();
-
         error_log("Error crear sesion: " . print_r($stmt->errorInfo(), true));
         return false;
-
-        
     }
-
-
-       
-        
-    }
-
+}
 ?>
