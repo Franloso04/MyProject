@@ -48,8 +48,8 @@ class SesionController {
 
         // 3. FLEXIBILIDAD DE NOMBRES (Aquí arreglamos el error 400)
         // Buscamos la fecha con varios nombres posibles
-        $inicio = $data->fecha_hora_inicio ?? $data->fecha_inicio ?? $data->inicio ?? null;
-        $fin = $data->fecha_hora_fin ?? $data->fecha_fin ?? $data->fin ?? null;
+        $inicio = $data->hora_inicio ?? $data->fecha_inicio ?? $data->inicio ?? null;
+        $fin = $data->hora_fin ?? $data->fecha_fin ?? $data->fin ?? null;
         $titulo = $data->titulo ?? $data->nombre ?? null;
 
         // 4. Validación estricta
@@ -67,8 +67,8 @@ class SesionController {
         $this->sesion->titulo = $titulo;
         $this->sesion->id_evento = $data->id_evento;
         $this->sesion->descripcion = $data->descripcion ?? '';
-        $this->sesion->fecha_hora_inicio = $inicio; // Usamos el valor encontrado
-        $this->sesion->fecha_hora_fin = $fin ?? $inicio; // Si no hay fin, usamos inicio
+        $this->sesion->hora_inicio = $inicio; // Usamos el valor encontrado
+        $this->sesion->hora_fin = $fin ?? $inicio; // Si no hay fin, usamos inicio
         $this->sesion->ubicacion_id = $data->ubicacion_id ?? null;
 
         if ($this->sesion->crear()) {

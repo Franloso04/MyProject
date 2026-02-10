@@ -5,8 +5,8 @@ class Ponente {
 
     public $id;
     public $id_evento;
-    public $nombre_completo; // Nombre real en BD
-    public $biografia;       // Nombre real en BD
+    public $nombre_completo; 
+    public $biografia;       
     public $foto_url;
     public $empresa;
     public $cargo;
@@ -33,14 +33,6 @@ class Ponente {
                       cargo=:cargo";
 
         $stmt = $this->conn->prepare($query);
-
-        $this->id_evento = htmlspecialchars(strip_tags($this->id_evento));
-        $this->nombre_completo = htmlspecialchars(strip_tags($this->nombre_completo));
-        $this->biografia = htmlspecialchars(strip_tags($this->biografia));
-        $this->foto_url = htmlspecialchars(strip_tags($this->foto_url));
-        $this->empresa = htmlspecialchars(strip_tags($this->empresa));
-        $this->cargo = htmlspecialchars(strip_tags($this->cargo));
-
 
         $stmt->bindParam(":id_evento", $this->id_evento);
         $stmt->bindParam(":nombre", $this->nombre_completo);

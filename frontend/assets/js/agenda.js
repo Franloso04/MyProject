@@ -35,7 +35,7 @@ async function loadSessions() {
 
         sesiones.forEach(ses => {
             // CORRECCIÓN: Usamos 'hora_inicio' que es el nombre real en tu BD
-            const horaStr = ses.hora_inicio || ses.fecha_hora_inicio;
+            const horaStr = ses.hora_inicio; 
             const hora = horaStr ? new Date(horaStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--";
 
             const card = `
@@ -68,13 +68,12 @@ async function loadSpeakers() {
     }
 }
 
-// 3. CREAR SESIÓN (Listener independiente y nombres de campos corregidos)
+// 3. CREAR SESIÓN
 if (createSessionForm) {
     createSessionForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(createSessionForm);
         
-        // Mapeamos los nombres del HTML (hora_inicio) a lo que espera el servidor
         const payload = {
             id_evento: eventData.id,
             titulo: formData.get('titulo'),
@@ -84,7 +83,7 @@ if (createSessionForm) {
             id_ubicacion: formData.get('id_ubicacion') || null
         };
 
-        // Validación: Aseguramos que los nombres coincidan con el HTML
+        // VALIDACIÓN: Ahora los nombres coinciden con el HTML
         if (!payload.titulo || !payload.hora_inicio) {
             alert("⚠️ Título y Hora de Inicio son obligatorios");
             return;
@@ -106,7 +105,7 @@ if (createSessionForm) {
     });
 }
 
-// 4. CREAR PONENTE (Listener independiente y nombres de campos corregidos)
+// 4. CREAR PONENTE
 if (createSpeakerForm) {
     createSpeakerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -114,7 +113,7 @@ if (createSpeakerForm) {
 
         const payload = {
             id_evento: eventData.id,
-            nombre_completo: formData.get("nombre_completo"), // Coincide con name="nombre_completo" del HTML
+            nombre_completo: formData.get("nombre_completo"), 
             biografia: formData.get("biografia"),
             email: formData.get("email")
         };
