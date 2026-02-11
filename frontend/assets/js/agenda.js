@@ -111,7 +111,7 @@ async function loadSessions() {
                         
                         <div class="flex flex-col items-end gap-3 shrink-0">
                             <div class="bg-slate-50 px-4 py-2 rounded-lg border border-slate-100 text-center">
-                                <span class="text-primary font-bold text-lg">${hInicio}</span>
+                                <span class="text-primary font-bold text-lg">${hInicio} - ${hFin}</span>
                             </div>
                             <button onclick="window.openAssigner(${ses.id})" class="group flex items-center gap-1.5 text-[10px] font-black text-slate-400 hover:text-primary transition-all uppercase tracking-widest">
                                 <span class="material-symbols-outlined text-sm group-hover:rotate-180 transition-transform">sync_alt</span> 
