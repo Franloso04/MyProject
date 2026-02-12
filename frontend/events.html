@@ -1,122 +1,134 @@
 <!DOCTYPE html>
-<html lang="es" class="light">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Eventos | EventManager</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: { "primary": "#197fe6", "background-light": "#f6f7f8", "background-dark": "#111921" },
-                    fontFamily: { "display": ["Inter", "sans-serif"] }
-                }
-            }
-        }
-    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .sidebar { min-height: 100vh; background-color: #212529; color: #fff; }
+        .nav-link { color: #adb5bd; display: flex; align-items: center; gap: 10px; padding: 12px 20px; }
+        .nav-link:hover, .nav-link.active { color: #fff; background-color: rgba(255,255,255,0.1); }
+        .card-event { transition: transform 0.2s, box-shadow 0.2s; border: none; overflow: hidden; }
+        .card-event:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .color-strip { height: 6px; width: 100%; }
+    </style>
 </head>
-<body class="bg-background-light min-h-screen font-display text-slate-900 flex">
+<body class="d-flex">
 
-    <aside class="w-64 bg-background-dark text-white flex-col hidden md:flex h-screen sticky top-0 z-20">
-        <div class="h-16 flex items-center px-6 border-b border-slate-700/50">
-            <span class="material-symbols-outlined text-primary mr-2">dataset</span>
-            <span class="font-bold text-lg tracking-wide">EventAdmin</span>
+    <aside class="sidebar d-flex flex-column flex-shrink-0 p-3" style="width: 260px;">
+        <div class="d-flex align-items-center mb-4 px-3">
+            <span class="material-symbols-outlined me-2 text-primary">dataset</span>
+            <span class="fs-5 fw-bold">EventAdmin</span>
         </div>
-        <nav class="flex-1 py-6 px-3 space-y-1">
-            <a href="events.html" class="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg border-r-4 border-primary transition-all">
-                <span class="material-symbols-outlined">event_note</span>
-                <span class="font-medium">Mis Eventos</span>
-            </a>
-            
-            <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider mt-4">Gestión</div>
-            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
-                <span class="material-symbols-outlined">analytics</span>
-                <span class="font-medium">Dashboard</span>
-            </a>
-            <a href="agenda.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
-                <span class="material-symbols-outlined">calendar_month</span>
-                <span class="font-medium">Agenda</span>
-            </a>
-        </nav>
-        
-        <div class="p-4 border-t border-slate-700/50">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold text-white">U</div>
-                <div class="overflow-hidden">
-                    <p class="text-sm font-medium text-white truncate" id="userNameDisplay">Cargando...</p>
-                    <button id="logoutBtn" class="text-xs text-slate-400 hover:text-red-400 transition-colors flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">logout</span> Salir
-                    </button>
-                </div>
+        <hr class="border-secondary">
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li><a href="events.html" class="nav-link active"><span class="material-symbols-outlined">event</span> Mis Eventos</a></li>
+            <li><a href="dashboard.html" class="nav-link"><span class="material-symbols-outlined">analytics</span> Dashboard</a></li>
+            <li><a href="agenda.html" class="nav-link"><span class="material-symbols-outlined">calendar_month</span> Agenda</a></li>
+        </ul>
+        <div class="mt-auto px-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold me-2" style="width: 32px; height: 32px;">U</div>
+                <small class="text-white" id="logoutBtn" style="cursor:pointer">Cerrar Sesión</small>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
-        <header class="h-16 bg-white border-b border-slate-200 flex justify-between items-center px-6 shadow-sm shrink-0 z-10">
-            <h1 class="text-xl font-bold text-slate-800">Gestionar Eventos</h1>
-            <button onclick="location.reload()" class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">refresh</span></button>
+    <div class="flex-grow-1 d-flex flex-column" style="height: 100vh; overflow-y: auto;">
+        <header class="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center shadow-sm">
+            <h4 class="m-0 fw-bold text-dark">Gestionar Eventos</h4>
+            <button onclick="location.reload()" class="btn btn-light btn-sm rounded-circle"><span class="material-symbols-outlined">refresh</span></button>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-6 md:p-8">
-            <div class="flex justify-between items-center mb-8 gap-4">
-                <div class="relative w-full sm:w-96">
-                    <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400">search</span>
-                    <input type="text" placeholder="Buscar..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-primary focus:border-primary">
+        <main class="p-4 container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="input-group" style="max-width: 350px;">
+                    <span class="input-group-text bg-white"><span class="material-symbols-outlined fs-6">search</span></span>
+                    <input type="text" class="form-control border-start-0" placeholder="Buscar...">
                 </div>
-                <button onclick="document.getElementById('createEventModal').showModal()" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg flex items-center gap-2 transition-transform active:scale-95">
-                    <span class="material-symbols-outlined text-lg">add_circle</span> Nuevo Evento
+                <button class="btn btn-primary d-flex align-items-center gap-2 fw-bold" onclick="openCreateModal()">
+                    <span class="material-symbols-outlined">add</span> Nuevo Evento
                 </button>
             </div>
 
-            <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-20">
-                <div class="col-span-full text-center py-10 text-slate-400">Cargando eventos...</div>
+            <div id="eventsGrid" class="row g-4">
+                <div class="col-12 text-center py-5 text-muted">Cargando eventos...</div>
             </div>
-        </div>
-    </main>
-
-    <dialog id="createEventModal" class="p-0 rounded-2xl shadow-2xl backdrop:bg-slate-900/50 w-full max-w-lg">
-        <div class="bg-white p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-slate-900">Crear Nuevo Evento</h3>
-                <button onclick="document.getElementById('createEventModal').close()" class="text-slate-400 hover:text-red-500"><span class="material-symbols-outlined">close</span></button>
-            </div>
-            <form id="createEventForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Nombre</label>
-                    <input type="text" name="titulo" required class="w-full rounded-lg border-slate-200 focus:ring-primary focus:border-primary">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Descripción</label>
-                    <textarea name="descripcion" rows="3" class="w-full rounded-lg border-slate-200 focus:ring-primary focus:border-primary"></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Inicio</label>
-                        <input type="date" name="fecha_inicio" required class="w-full rounded-lg border-slate-200 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Fin</label>
-                        <input type="date" name="fecha_fin" required class="w-full rounded-lg border-slate-200 focus:ring-primary focus:border-primary">
-                    </div>
-                </div>
-                <div class="mt-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-2">Color Corporativo (Branding)</label>
-                        <div class="flex items-center gap-3">
-                            <input type="color" id="primaryColorPicker" name="primary_color" 
-               class="w-10 h-10 rounded-lg cursor-pointer border-none bg-transparent" value="#197fe6">
-        <span class="text-xs text-slate-500">Este color personalizará la interfaz del evento.</span>
+        </main>
     </div>
-</div>
-                <button type="submit" class="w-full py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 mt-2">Guardar Evento</button>
-            </form>
-        </div>
-    </dialog>
 
+    <div class="modal fade" id="createEventModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTitle">Nuevo Evento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createEventForm">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Nombre</label>
+                            <input type="text" name="titulo" class="form-control" required placeholder="Ej. Congreso 2024">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Descripción</label>
+                            <textarea name="descripcion" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Inicio</label>
+                                <input type="date" name="fecha_inicio" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Fin</label>
+                                <input type="date" name="fecha_fin" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Ubicación</label>
+                            <input type="text" name="ubicacion" class="form-control">
+                        </div>
+                        
+                        <div class="p-3 bg-light rounded border border-dashed mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <label class="fw-bold mb-0">Color de Marca</label>
+                                <div class="small text-muted">Personaliza tarjetas y botones</div>
+                            </div>
+                            <input type="color" id="primaryColorPicker" class="form-control form-control-color" value="#0d6efd" title="Elige un color">
+                        </div>
+
+                        <div class="d-flex gap-2 pt-2 border-top mt-3">
+                            <button type="button" id="btnDeleteEvent" class="btn btn-outline-danger d-none d-flex align-items-center gap-2">
+                                <span class="material-symbols-outlined fs-6">delete</span> Borrar
+                            </button>
+                            <div class="ms-auto d-flex gap-2">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary fw-bold px-4">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="./assets/js/events.js"></script>
+    <script>
+        // Helper global para el botón "Nuevo"
+        function openCreateModal() {
+            document.getElementById('createEventForm').reset();
+            delete document.getElementById('createEventForm').dataset.editId;
+            document.getElementById('modalTitle').textContent = "Nuevo Evento";
+            document.getElementById('btnDeleteEvent').classList.add('d-none');
+            document.getElementById('primaryColorPicker').value = "#0d6efd";
+            new bootstrap.Modal(document.getElementById('createEventModal')).show();
+        }
+    </script>
 </body>
 </html>
