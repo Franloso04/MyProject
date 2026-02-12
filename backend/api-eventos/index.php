@@ -16,6 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // 2. PARSEO DE URL INTELIGENTE - CORREGIDO PARA MAMP
+include_once 'config/database.php';
+$request_method = $_SERVER["REQUEST_METHOD"];
 $base_path = '/MyProject/backend/api-eventos';  // ← CAMBIAR ESTO SI CAMBIA TU CARPETA
 $request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $route_clean = str_replace($base_path, '', $request_uri);
@@ -42,6 +44,8 @@ switch ($resource) {
         $controller->store();
     } elseif ($request_method == 'PUT' && $id) { // <--- AÑADIR ESTO
         $controller->update($id);
+    } elseif ($request_method == 'DELETE' && $id) { // <-- NUEVO: BORRAR
+            $controller->delete($id);
     }
     break;
 
@@ -101,7 +105,8 @@ switch ($resource) {
             $controller->index(); // Filtra por ?event_id=X
         } elseif ($request_method == 'POST') {
             $controller->store();
-        }
+        } elseif ($request_method == 'PUT' && $id) $controller->update($id);
+        elseif ($request_method == 'DELETE' && $id) $controller->delete($id);
         break;
 
     // --- 7. PONENTES ---
@@ -132,6 +137,9 @@ switch ($resource) {
             $controller->index();
         } elseif ($request_method == 'POST' && $id == 'login') {
             $controller->login();
+        } elseif($request_method == 'POST' && $id == 'register') {
+            $controller->register() ;
+    ;
         }
         break;
 
@@ -163,7 +171,7 @@ switch ($resource) {
         $controller = new SesionPonenteController();
         if ($request_method == 'POST') {
             $controller->asignar();
-        }
+        } elseif ($request_method == 'POST') $controller->store();
         break;
 
     default:
